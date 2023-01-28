@@ -24,13 +24,6 @@ files = ["parsing-document-in-cpu-intensive-application.py"]
 from = "./"
 files = ["calls.py"]
 
-<!-- packages = [
-    "markdown"
-]
-plugins = [
-    "../build/plugins/python/py_markdown.py",
-    "../build/plugins/python/py_tutor.py"
-] -->
 </py-config>
 
 <style type="text/css">
@@ -42,21 +35,27 @@ plugins = [
     overflow: auto;
 }
 
+.pres-scene {
+    display: none;
+}
+
+.pres-scene--choosen {
+    display: block;
+}
 </style>
 
 <script>
     const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop),
     });
-    var currentStage = 0
 
-    console.log('Params', params)
-    const loadStageValue = params.stage
-    let loadStage = null;
-    if (loadStageValue != undefined) {
-        loadStage = parseInt(loadStageValue);
-        console.log('Load stage', currentStage, loadStageValue)
-    }
+    // console.log('Params', params)
+    // const loadStageValue = params.stage
+    // let loadStage = null;
+    // if (loadStageValue != undefined) {
+    //     loadStage = parseInt(loadStageValue);
+    //     console.log('Load stage', currentStage, loadStageValue)
+    // }
 
     function clearStagePyTerminal(stageElem) {
         const pyTerminalElems = stageElem.getElementsByTagName("py-terminal")
@@ -73,40 +72,48 @@ plugins = [
     }
 
 
-    function showStage(id) {
-        const showElem = document.getElementById("stage-" + id.toString());
-        console.log('ShowElem', showElem)
-        if (!showElem) {
+    function showScene(modifier) {
+        const currSceneElems = document.getElementsByClassName("pres-scene--choosen")
+        console.log('Curr Scene', currSceneElems)
+        const currSceneElem = currSceneElems[0]
+        let showSceneElem = null
+        if (modifier == 1) {
+            showSceneElem = currSceneElem.nextSibling.nextSibling
+        } else if (modifier == -1) {
+            showSceneElem = currSceneElem.previousSibling.previousSibling
+        } else {
+            throw new Error('Only supported +1/-1 modifier!')
+        }
+
+        console.log('showSceneElem', showSceneElem)
+        if (!showSceneElem) {
             return
         }
 
-        if (currentStage && currentStage != id) {
-            clearStagePyTerminal(showElem)
+        if (!showSceneElem.classList.contains("pres-scene")) {
+            return
+        }
 
-            const hideElem = document.getElementById("stage-" + currentStage.toString())
-            if (hideElem) {
-                hideElem.style.display = "none"
-            }
+        if (currSceneElem && currSceneElem != showSceneElem) {
+            clearStagePyTerminal(currSceneElem)
+            currSceneElem.classList.remove("pres-scene--choosen")
         }
-        currentStage = id;
-        if (showElem) {
-            showElem.style.display = "block"
-        }
+        showSceneElem.classList.add("pres-scene--choosen")
     }
 
     document.addEventListener('onload', (event) => {
-        console.log('Show stage', loadStage)
-        if (loadStage !== null) {
-            showStage(currentStage)
-        }
+        // console.log('Show stage', loadStage)
+        // if (loadStage !== null) {
+        //     showStage(currentStage)
+        // }
     })
 
     document.addEventListener('keyup', (event) => {
         console.log('keyup', event)
         if (event.code == 'KeyA') {
-            showStage(currentStage - 1)
+            showScene(-1)
         } else if (event.code == 'KeyD' || event.code == 'Space') {
-            showStage(currentStage + 1)
+            showScene(+1)
         }
     });
 </script>
@@ -127,10 +134,10 @@ This talk will be more focused on backend parts and designed for intermediate-le
 -
 </div>
 
-<div id="stage-0" style="display: block;">
+<div class="pres-scene pres-scene--choosen">
 </div>
 
-<div id="stage-1" style="display: none;">
+<div class="pres-scene">
     <py-repl>
         print('Python Web Performance 101: Uncovering the root causes')
         print('By Alex Ptakhin')
@@ -139,13 +146,13 @@ This talk will be more focused on backend parts and designed for intermediate-le
     </py-repl>
 </div>
 
-<div id="stage-2" style="display: none;">
+<div class="pres-scene">
     <py-repl>
         print('Who at least once used time.perfcounter(), CPU or memory usage profilers?')
     </py-repl>
 </div>
 
-<div id="stage-3" style="display: none;">
+<div class="pres-scene">
     <py-repl>
         print('David')
         print('Coffee')
@@ -159,19 +166,19 @@ This talk will be more focused on backend parts and designed for intermediate-le
     </py-repl> -->
 </div>
 
-<div id="stage-4" style="display: none;">
+<div class="pres-scene">
     <py-repl>
         print('Scale-in: more CPU, more RAM')
     </py-repl>
 </div>
 
-<div id="stage-5" style="display: none;">
+<div class="pres-scene">
     <py-repl>
         print('Now he has time to debug')
     </py-repl>
 </div>
 
-<div id="stage-6" style="display: none;">
+<div class="pres-scene">
     <py-repl>
         import time
         from calls import cpu_intensive_call
@@ -188,14 +195,14 @@ This talk will be more focused on backend parts and designed for intermediate-le
 </div>
 
 
-<div id="stage-7" style="display: none;">
+<div class="pres-scene">
     <py-repl>
         print('time.perf_counter')
         print('Pros: out of box')
     </py-repl>
 </div>
 
-<div id="stage-8" style="display: none;">
+<div class="pres-scene">
     <py-repl>
         print('time.perf_counter')
         print('Pros: out of box')
