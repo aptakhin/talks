@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <title>Python Web Performance 101: Uncovering the root causes</title>
+
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+
+<py-config>
+terminal = false
+
+[[fetch]]
+from = "./load"
+files = ["parsing-document-in-cpu-intensive-application.py"]
+
+[[fetch]]
+from = "./"
+files = ["calls.py"]
+
+<!-- packages = [
+    "markdown"
+]
+plugins = [
+    "../build/plugins/python/py_markdown.py",
+    "../build/plugins/python/py_tutor.py"
+] -->
+</py-config>
+
+<style type="text/css">
+.py-terminal {
+    min-height: 10em;
+    background-color: wheat;
+    color: black;
+    padding: 0.5rem;
+    overflow: auto;
+}
+
+</style>
+
+<script>
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+    var currentStage = 0
+
+    console.log('Params', params)
+    const loadStageValue = params.stage
+    let loadStage = null;
+    if (loadStageValue != undefined) {
+        loadStage = parseInt(loadStageValue);
+        console.log('Load stage', currentStage, loadStageValue)
+    }
+
+    function clearStagePyTerminal(stageElem) {
+        const pyTerminalElems = stageElem.getElementsByTagName("py-terminal")
+        if (!pyTerminalElems.length) {
+            return;
+        }
+        console.log('pyTerminalElems', pyTerminalElems)
+        const preTerminalElems = pyTerminalElems[0].getElementsByTagName("pre")
+        if (!preTerminalElems.length) {
+            return;
+        }
+        console.log('preTerminalElems', preTerminalElems)
+        preTerminalElems[0].innerHTML = ''
+    }
+
+
+    function showStage(id) {
+        const showElem = document.getElementById("stage-" + id.toString());
+        console.log('ShowElem', showElem)
+        if (!showElem) {
+            return
+        }
+
+        if (currentStage && currentStage != id) {
+            clearStagePyTerminal(showElem)
+
+            const hideElem = document.getElementById("stage-" + currentStage.toString())
+            if (hideElem) {
+                hideElem.style.display = "none"
+            }
+        }
+        currentStage = id;
+        if (showElem) {
+            showElem.style.display = "block"
+        }
+    }
+
+    document.addEventListener('onload', (event) => {
+        console.log('Show stage', loadStage)
+        if (loadStage !== null) {
+            showStage(currentStage)
+        }
+    })
+
+    document.addEventListener('keyup', (event) => {
+        console.log('keyup', event)
+        if (event.code == 'KeyA') {
+            showStage(currentStage - 1)
+        } else if (event.code == 'KeyD' || event.code == 'Space') {
+            showStage(currentStage + 1)
+        }
+    });
+</script>
+
+<div id="contents" style="display: none;">
+Python web performance 101: uncovering the root causes
+
+Web engineers meet issues with performance with fast-growing or even maintaining existing products. It’s always unexpected and we have limited time for decisions. With our hero, we meet real-faced RAM, CPU and IO problems and learn troubleshooting approaches to monolithic and distributed systems.
+
+We try different existing tools from Python and the cloud ecosystem including, but not limited to: cProfile, yappi, memory-profiler and tracing.
+
+This talk will be more focused on backend parts and designed for intermediate-level web engineers, but all skill levels are welcome.
+
+- time and timeit
+- cProfile
+- snakeviz things
+- yappi
+-
+</div>
+
+<div id="stage-0" style="display: block;">
+</div>
+
+<div id="stage-1" style="display: none;">
+    <py-repl>
+        print('Python Web Performance 101: Uncovering the root causes')
+        print('By Alex Ptakhin')
+        print('Senior Software Engineer at Prestatech GmbH')
+        print('me@aptakhin.name')
+    </py-repl>
+</div>
+
+<div id="stage-2" style="display: none;">
+    <py-repl>
+        print('Who at least once used time.perfcounter(), CPU or memory usage profilers?')
+    </py-repl>
+</div>
+
+<div id="stage-3" style="display: none;">
+    <py-repl>
+        print('David')
+        print('Coffee')
+        print('Performance issues')
+    </py-repl>
+
+    <!-- <py-repl style="display: none">
+        print('David2')
+        print('Coffee2')
+        print('Performance issues')
+    </py-repl> -->
+</div>
+
+<div id="stage-4" style="display: none;">
+    <py-repl>
+        print('Scale-in: more CPU, more RAM')
+    </py-repl>
+</div>
+
+<div id="stage-5" style="display: none;">
+    <py-repl>
+        print('Now he has time to debug')
+    </py-repl>
+</div>
+
+<div id="stage-6" style="display: none;">
+    <py-repl>
+        import time
+        from calls import cpu_intensive_call
+
+        start = time.perf_counter()
+
+        cpu_intensive_call(num_iterations=5000000)
+
+        end = time.perf_counter()
+        print('Elapsed seconds: {:.1f}'.format(end - start))
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+
+<div id="stage-7" style="display: none;">
+    <py-repl>
+        print('time.perf_counter')
+        print('Pros: out of box')
+    </py-repl>
+</div>
+
+<div id="stage-8" style="display: none;">
+    <py-repl>
+        print('time.perf_counter')
+        print('Pros: out of box')
+        print('Cons: need to edit code, no internal performance details')
+    </py-repl>
+</div>
+
+
+</body>
+</html>
