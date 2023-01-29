@@ -102,7 +102,7 @@ files = ["calls.py"]
     }
 
     document.addEventListener('onload', (event) => {
-        // console.log('Show stage', loadStage)
+        console.log('Show stage', 'xxx')
         // if (loadStage !== null) {
         //     showStage(currentStage)
         // }
@@ -148,22 +148,26 @@ This talk will be more focused on backend parts and designed for intermediate-le
 
 <div class="pres-scene">
     <py-repl>
-        print('Who at least once used time.perfcounter(), CPU or memory usage profilers?')
+        print('Who at least once used timeit, time.perfcounter(), CPU or memory usage profilers?')
     </py-repl>
 </div>
 
 <div class="pres-scene">
     <py-repl>
         print('David')
+    </py-repl>
+</div>
+
+<div class="pres-scene">
+    <py-repl>
         print('Coffee')
+    </py-repl>
+</div>
+
+<div class="pres-scene">
+    <py-repl>
         print('Performance issues')
     </py-repl>
-
-    <!-- <py-repl style="display: none">
-        print('David2')
-        print('Coffee2')
-        print('Performance issues')
-    </py-repl> -->
 </div>
 
 <div class="pres-scene">
@@ -194,7 +198,6 @@ This talk will be more focused on backend parts and designed for intermediate-le
     <py-terminal></py-terminal>
 </div>
 
-
 <div class="pres-scene">
     <py-repl>
         print('time.perf_counter')
@@ -208,6 +211,22 @@ This talk will be more focused on backend parts and designed for intermediate-le
         print('Pros: out of box')
         print('Cons: need to edit code, no internal performance details')
     </py-repl>
+</div>
+
+<div class="pres-scene">
+    <islast style="display: block;">&nbsp;</islast>
+
+    <py-repl>
+        import cProfile
+        import re
+
+        from calls import cpu_intensive_call
+
+        cProfile.run('cpu_intensive_call(num_iterations=5000000)')
+    </py-repl>
+
+    <py-terminal></py-terminal>
+
 </div>
 
 

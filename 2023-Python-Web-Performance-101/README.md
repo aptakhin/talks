@@ -19,3 +19,10 @@ python load/parsing-document-on-cpu-intensive-application.py
 # Finishing
 doctl compute droplet delete PyConFr2023 -f
 ```
+
+
+```bash
+# Make pdf
+cd pdf
+npx playwright test
+```
