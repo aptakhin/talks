@@ -26,3 +26,8 @@ doctl compute droplet delete PyConFr2023 -f
 cd pdf
 npx playwright test
 ```
+
+```
+poetry install
+poetry shell
+```

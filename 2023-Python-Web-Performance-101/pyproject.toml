@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "2023-python-web-performance-101"
+version = "0.1.0"
+description = ""
+authors = ["Alexander Ptakhin <me@aptakhin.name>"]
+readme = "README.md"
+packages = [{include = "2023_python_web_performance_101"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+memory-profiler = "^0.61.0"
+py-spy = "^0.3.14"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

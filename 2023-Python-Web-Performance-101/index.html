@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,10 +9,15 @@
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 </head>
 <body>
 
 <py-config>
+packages = ["pyflame"]
 terminal = false
 
 [[fetch]]
@@ -42,6 +46,11 @@ files = ["calls.py"]
 .pres-scene--choosen {
     display: block;
 }
+
+.topic {
+    text-align: center;
+    vertical-align: center;
+}
 </style>
 
 <script>
@@ -69,6 +78,17 @@ files = ["calls.py"]
         }
         console.log('preTerminalElems', preTerminalElems)
         preTerminalElems[0].innerHTML = ''
+    }
+
+    function load_content(file, id) {
+        console.log('Loading', file, id)
+        const url = file
+        fetch(url)
+        .then( r => r.text() )
+        .then( t => {
+            document.getElementById(id).innerHTML = t
+            hljs.highlightAll();
+        })
     }
 
     function showScene(modifier) {
@@ -113,8 +133,13 @@ files = ["calls.py"]
         // }
     }
 
-    document.addEventListener('onload', (event) => {
+    window.addEventListener('load', (event) => {
         console.log('Show stage', 'xxx')
+
+        load_content('load/memory_profiler.py', 'memory_profiler_py')
+        load_content('out/memory_profiler.txt', 'memory_profiler_bash_output')
+
+        load_content('load/py-spy.py', 'py_spy_py')
     })
 
     document.addEventListener('keyup', (event) => {
@@ -143,7 +168,7 @@ This talk will be more focused on backend parts and designed for intermediate-le
 -
 </div>
 
-<div class="pres-scene pres-scene--choosen">
+<div class="pres-scene">
 </div>
 
 <div class="pres-scene">
@@ -187,8 +212,12 @@ This talk will be more focused on backend parts and designed for intermediate-le
 
 <div class="pres-scene">
     <py-repl>
-        print('Now he has time to debug')
+        print('Now David has time to debug')
     </py-repl>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">CPU</h2>
 </div>
 
 <div class="pres-scene">
@@ -222,10 +251,8 @@ This talk will be more focused on backend parts and designed for intermediate-le
     </py-repl>
 </div>
 
-<div class="pres-scene">
-    <islast style="display: block;">&nbsp;</islast>
-
-    <py-repls>
+<div class="pres-scene pres-scene--choosen">
+    <py-repl>
         import cProfile
         import re
 
@@ -235,7 +262,50 @@ This talk will be more focused on backend parts and designed for intermediate-le
     </py-repl>
 
     <py-terminal></py-terminal>
+</div>
 
+<div class="pres-scene">
+    <pre><code class="language-python" id="py_spy_py"></code></pre>
+
+    <pre><code class="language-bash">$ py-spy record -o out/py-spy.svg -- python load/py-spy.py
+    </code></pre>
+
+    <!-- py-spy record -o profile.svg -- python load/py-spy.py -->
+
+    <img src="out/py-spy.svg">
+</div>
+
+
+<div class="pres-scene">
+    <h2 class="topic">RAM</h2>
+</div>
+
+<div class="pres-scene">
+    <pre><code class="language-python" id="memory_profiler_py"></code></pre>
+
+    <pre><code class="language-bash">$ python -m memory_profiler load/memory_profiler.py
+    </code></pre>
+
+    <!-- python -m memory_profiler load/memory_profiler.py > out/memory_profiler.txt -->
+
+    <pre><code class="language-bash" id="memory_profiler_bash_output"></code></pre>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">IO</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Tracing</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Conclusion</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Thank you!</h2>
+    <h3 class="topic">PyScript, highlight.js, Prestatech GmbH</h3>
 </div>
 
 </body>
