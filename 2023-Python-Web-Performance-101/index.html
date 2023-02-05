@@ -17,7 +17,7 @@
 <body>
 
 <py-config>
-packages = ["pyflame"]
+packages = ["pyflame", "opentelemetry-distro"]
 terminal = false
 
 [[fetch]]
@@ -25,8 +25,20 @@ from = "./load"
 files = ["parsing-document-in-cpu-intensive-application.py"]
 
 [[fetch]]
+from = "./load"
+files = ["py_ff.py"]
+
+[[fetch]]
+from = "./"
+files = ["objects.py"]
+
+[[fetch]]
 from = "./"
 files = ["calls.py"]
+
+[[fetch]]
+from = "./"
+files = ["helpers.py"]
 
 </py-config>
 
@@ -146,7 +158,7 @@ files = ["calls.py"]
         console.log('keyup', event)
         if (event.code == 'KeyA') {
             showScene(-1)
-        } else if (event.code == 'KeyD' || event.code == 'Space') {
+        } else if (event.code == 'KeyD'/* || event.code == 'Space'*/) {
             showScene(+1)
         }
     });
@@ -161,22 +173,39 @@ We try different existing tools from Python and the cloud ecosystem including, b
 
 This talk will be more focused on backend parts and designed for intermediate-level web engineers, but all skill levels are welcome.
 
+---
+22 minutes.
+
+Structure
+Introduction (2 min.)
+CPU (5 min)
 - time and timeit
 - cProfile
 - snakeviz things
 - yappi
--
+RAM (5 min)
+- memory_profiler
+IO (3 min)
+- heavy loaded, processing big files
+Tracing (4 min)
+Conclusion (3 min)
+
 </div>
 
 <div class="pres-scene">
+    <h2 class="topic">First white screen</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Second white screen</h2>
 </div>
 
 <div class="pres-scene">
     <py-repl>
         print('Python Web Performance 101: Uncovering the root causes')
         print('By Alex Ptakhin')
-        print('Senior Software Engineer at Prestatech GmbH')
-        print('me@aptakhin.name')
+        print('Senior Software Engineer at Prestatech GmbH, Berlin')
+        print('me@aptakhin.name https://twitter.com/aptakhin https://linkedin.com/in/aptakhin')
     </py-repl>
 </div>
 
@@ -188,19 +217,25 @@ This talk will be more focused on backend parts and designed for intermediate-le
 
 <div class="pres-scene">
     <py-repl>
+        print('Made up story. No one was hurt!')
+    </py-repl>
+</div>
+
+<div class="pres-scene">
+    <py-repl>
         print('David')
     </py-repl>
 </div>
 
 <div class="pres-scene">
     <py-repl>
-        print('Coffee')
+        print('Performance issues')
     </py-repl>
 </div>
 
 <div class="pres-scene">
     <py-repl>
-        print('Performance issues')
+        <!-- TODO: htop CPU image: python load/parsing-document-in-cpu-intensive-application.py -->
     </py-repl>
 </div>
 
@@ -221,6 +256,7 @@ This talk will be more focused on backend parts and designed for intermediate-le
 </div>
 
 <div class="pres-scene">
+    <!-- TODO: more interesting cpu_intensive_call with details -->
     <py-repl>
         import time
         from calls import cpu_intensive_call
@@ -251,7 +287,7 @@ This talk will be more focused on backend parts and designed for intermediate-le
     </py-repl>
 </div>
 
-<div class="pres-scene pres-scene--choosen">
+<div class="pres-scene">
     <py-repl>
         import cProfile
         import re
@@ -265,6 +301,48 @@ This talk will be more focused on backend parts and designed for intermediate-le
 </div>
 
 <div class="pres-scene">
+    <pre><code class="language-bash">$ python -m cProfile \
+    -o out/cpu-intensive-program.prof \
+    load/cpu-intensive-program.py
+$ snakeviz out/cpu-intensive-program.prof
+    </code></pre>
+
+    <!-- TODO: image for more interesting cpu-intensive-program -->
+
+    <py-terminal></py-terminal>
+</div>
+
+<div class="pres-scene">
+    <py-repl>
+        print('cProfile.run')
+        print('Pros: out of box')
+        print('Pros: internal details timings')
+    </py-repl>
+</div>
+
+<div class="pres-scene">
+    <py-repl>
+        print('cProfile.run')
+        print('Pros: out of box')
+        print('Pros: internal details timings')
+        print('Pros: have visualize extensions')
+    </py-repl>
+</div>
+
+<div class="pres-scene">
+    <py-repl>
+        print('Perfect! Is this all?')
+    </py-repl>
+</div>
+
+<div class="pres-scene">
+    <py-repl>
+        print('Perfect! Is this all?')
+        print('Measuring something can change a behaviour of the system')
+    </py-repl>
+</div>
+
+<div class="pres-scene">
     <pre><code class="language-python" id="py_spy_py"></code></pre>
 
     <pre><code class="language-bash">$ py-spy record -o out/py-spy.svg -- python load/py-spy.py
@@ -275,28 +353,223 @@ This talk will be more focused on backend parts and designed for intermediate-le
     <img src="out/py-spy.svg">
 </div>
 
+<div class="pres-scene">
+    <py-repl>
+        print('py-spy')
+        print('Pros: sampling profiler')
+    </py-repl>
+</div>
+
+<div class="pres-scene">
+    <py-repl>
+        print('py-spy')
+        print('Pros: sampling profiler')
+
+        print('Cons: requires developer environment')
+    </py-repl>
+</div>
+
+<div class="pres-scene">
+    <!-- TODO: htop RAM image: python load/parsing-document-in-ram-intensive-application.py -->
+    <h2 class="topic">New day</h2>
+</div>
 
 <div class="pres-scene">
     <h2 class="topic">RAM</h2>
+
+    <!--
+
+        https://github.com/pyutils/line_profiler
+
+    -->
+</div>
+
+<div class="pres-scene">
+    <h3 class="topic">sys.getsizeof</h3>
+
+    <py-repl>
+        import sys
+
+        print(f'Empty dict size: {sys.getsizeof({})}')
+        print(f'Empty list size: {sys.getsizeof([])}')
+        print(f'Empty set size: {sys.getsizeof(set())}')
+
+        from objects import MemoryConsumer
+        from helpers import total_size
+
+        print(f'Custom class: {sys.getsizeof(MemoryConsumer())} {total_size(MemoryConsumer(), verbose=True)}')
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+<div class="pres-scene">
+    <h3 class="topic">tracemalloc</h3>
+
+    <py-repl>
+        import tracemalloc
+        tracemalloc.start()
+        from py_ff import my_func
+        my_func()
+
+        snapshot1 = tracemalloc.take_snapshot()
+
+        my_func()
+
+        snapshot2 = tracemalloc.take_snapshot()
+
+        top_stats = snapshot2.compare_to(snapshot1, 'lineno')
+
+        print("[ Top 10 differences ]")
+        for stat in top_stats[:10]:
+            print(stat)
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+
+<div class="pres-scene">
+    <pre><code class="language-python" id="memory_profiler_py"></code></pre>
+
+    <pre><code class="language-bash">$ poetry add memory_profiler
+$ python -m memory_profiler load/memory_profiler.py
+    </code></pre>
+
+    <pre><code class="language-bash" id="memory_profiler_bash_output"></code></pre>
 </div>
 
 <div class="pres-scene">
     <pre><code class="language-python" id="memory_profiler_py"></code></pre>
 
-    <pre><code class="language-bash">$ python -m memory_profiler load/memory_profiler.py
-    </code></pre>
+    <!--
+        1. --attach PID.
 
-    <!-- python -m memory_profiler load/memory_profiler.py > out/memory_profiler.txt -->
+        2. --backend {psutil,psutil_pss,psutil_uss,posix,tracemalloc}
+                    Current supported backends: 'psutil', 'psutil_pss', 'psutil_uss', 'posix', 'tracemalloc'. Defaults to 'psutil'.
 
-    <pre><code class="language-bash" id="memory_profiler_bash_output"></code></pre>
+        3. include-children and multiprocess
+
+        4. python -m memory_profiler --pdb-mmem=100 my_script.py
+
+        5. >>> from memory_profiler import memory_usage
+>>> mem_usage = memory_usage(-1, interval=.2, timeout=1)
+>>> print(mem_usage)
+    [7.296875, 7.296875, 7.296875, 7.296875, 7.296875] -->
+
+    <pre><code class="language-bash">$ poetry add matplotlib
+$ mprof run -o out/mprofile.dat load/memory_profiler.py
+$ mprof plot -o out/mprofile.png out/mprofile.dat</code></pre>
+
+    <pre><code class="language-bash" id="memory_profiler_bash_overview_output"></code></pre>
 </div>
+
+<div class="pres-scene">
+    <py-repl>
+        print('memory-profiler')
+        print('Code changes for the detailed overview')
+        print('Uses deprecated matplotlib.pylab')
+        print('No longer maintained')
+    </py-repl>
+
+
+<!--
+    https://stackify.com/top-5-python-memory-profilers/
+line-profiler: https://github.com/pyutils/line_profiler
+
+tracemalloc
+
+
+Debugonly runs: https://pythonspeed.com/fil/docs/
+poetry add filprofiler
+
+Pympler
+Guppy3
+
+If the issue is in Python code, tools like tracemalloc and Pympler can tell you which objects are leaking and what is preventing them from being leaked.
+If you’re leaking memory in C code, you can use tools like Valgrind.
+
+
+Fil will therefore tell you, in an easy to understand way:
+
+Where peak memory usage is, also known as the high-water mark.
+What code was responsible for allocating the memory that was present at that peak moment.
+This includes C/Fortran/C++/whatever extensions that don’t use Python’s memory allocation API (tracemalloc only does Python memory APIs).
+
+https://pythonspeed.com/memory/
+
+-->
+</div>
+
 
 <div class="pres-scene">
     <h2 class="topic">IO</h2>
 </div>
 
 <div class="pres-scene">
+    <h2 class="topic">IO</h2>
+    <ul>
+        <li>Scale in</li>
+        <li>Scale out</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
     <h2 class="topic">Tracing</h2>
+</div>
+
+<div class="pres-scene">
+    <h3 class="topic">opentelemetry</h3>
+
+    <py-repl>
+        from calls import cpu_intensive_call
+        from opentelemetry import trace
+
+        tracer = trace.get_tracer(__name__)
+
+        if __name__ == '__main__':
+            with tracer.start_as_current_span("cpu_intensive_application") as parent:
+                with tracer.start_as_current_span("cpu_intensive_call") as child:
+                cpu_intensive_call(num_iterations=5000000)
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+<div class="pres-scene pres-scene--choosen">
+    <h3 class="topic">opentelemetry</h3>
+
+    <py-repl>
+        from opentelemetry import trace, metrics
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import SimpleSpanProcessor, ConsoleSpanExporter
+        from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+        from opentelemetry.sdk.metrics import MeterProvider
+        from opentelemetry.sdk.metrics.export import InMemoryMetricReader, ConsoleMetricExporter
+
+        resource = Resource(attributes={
+            SERVICE_NAME: "my-service"
+        })
+
+        reader = InMemoryMetricReader()
+        provider = MeterProvider(resource=resource, metric_readers=[reader])
+        if not metrics.get_meter_provider():
+            metrics.set_meter_provider(provider)
+
+        provider = TracerProvider(resource=resource)
+        processor = SimpleSpanProcessor(ConsoleSpanExporter())
+        provider.add_span_processor(processor)
+        trace.set_tracer_provider(provider)
+
+        from calls import cpu_intensive_call
+
+        for x in range(3):
+            with tracer.start_as_current_span("cpu_intensive_application") as parent:
+                with tracer.start_as_current_span("cpu_intensive_call") as child:
+                    cpu_intensive_call(num_iterations=5000000)
+    </py-repl>
+
+    <py-terminal></py-terminal>
 </div>
 
 <div class="pres-scene">
@@ -307,6 +580,17 @@ This talk will be more focused on backend parts and designed for intermediate-le
     <h2 class="topic">Thank you!</h2>
     <h3 class="topic">PyScript, highlight.js, Prestatech GmbH</h3>
 </div>
+
+
+<div class="pres-scene">
+    <h2 class="topic">References</h2>
+    <ul>
+        <li>https://docs.python.org/3/library/tracemalloc.html</li>
+        <li>https://bloomberg.github.io/memray/</li>
+    </ul>
+</div>
+
+
 
 </body>
 </html>

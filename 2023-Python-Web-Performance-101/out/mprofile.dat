@@ -1,0 +1,5 @@
+FUNC __main__.my_func 15.0781 1675590813.6849 22.7109 1675590813.8490 0
+CMDLINE /Users/alex/Library/Caches/pypoetry/virtualenvs/2023-python-web-performance-101-ZJBzhk7H-py3.10/bin/python load/memory_profiler.py
+MEM 0.199219 1675590813.5787
+MEM 13.968750 1675590813.6791
+MEM 140.101562 1675590813.7806
