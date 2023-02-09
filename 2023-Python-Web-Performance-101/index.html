@@ -55,6 +55,10 @@ files = ["helpers.py"]
     display: none;
 }
 
+.pres-speech {
+    display: none;
+}
+
 .pres-scene--choosen {
     display: block;
 }
@@ -151,6 +155,9 @@ files = ["helpers.py"]
         load_content('load/memory_profiler.py', 'memory_profiler_py')
         load_content('out/memory_profiler.txt', 'memory_profiler_bash_output')
 
+        load_content('load/asyncioyappi.py', 'asyncio_yappi_py')
+        load_content('out/asyncio_yappi.txt', 'asyncio_yappi_py_output')
+
         load_content('load/py-spy.py', 'py_spy_py')
     })
 
@@ -193,11 +200,11 @@ Conclusion (3 min)
 </div>
 
 <div class="pres-scene">
-    <h2 class="topic">First white screen</h2>
+    <h2 class="topic">First almost white screen</h2>
 </div>
 
 <div class="pres-scene">
-    <h2 class="topic">Second white screen</h2>
+    <h2 class="topic">Second almost white screen</h2>
 </div>
 
 <div class="pres-scene">
@@ -207,48 +214,38 @@ Conclusion (3 min)
         print('Senior Software Engineer at Prestatech GmbH, Berlin')
         print('me@aptakhin.name https://twitter.com/aptakhin https://linkedin.com/in/aptakhin')
     </py-repl>
-</div>
 
-<div class="pres-scene">
-    <py-repl>
-        print('Who at least once used timeit, time.perfcounter(), CPU or memory usage profilers?')
-    </py-repl>
+    <div class="pres-speech">
+        Who at least once used timeit, time.perfcounter(), CPU or memory usage profilers?
+    </div>
 </div>
 
 <div class="pres-scene">
     <py-repl>
         print('Made up story. No one was hurt!')
     </py-repl>
-</div>
 
-<div class="pres-scene">
-    <py-repl>
-        print('David')
-    </py-repl>
+    <div class="pres-speech">
+        David
+    </div>
 </div>
 
 <div class="pres-scene">
     <py-repl>
         print('Performance issues')
     </py-repl>
-</div>
 
-<div class="pres-scene">
-    <py-repl>
-        <!-- TODO: htop CPU image: python load/parsing-document-in-cpu-intensive-application.py -->
-    </py-repl>
+    <!-- TODO: htop CPU image: python load/parsing-document-in-cpu-intensive-application.py -->
 </div>
 
 <div class="pres-scene">
     <py-repl>
         print('Scale-in: more CPU, more RAM')
     </py-repl>
-</div>
 
-<div class="pres-scene">
-    <py-repl>
-        print('Now David has time to debug')
-    </py-repl>
+    <div class="pres-speech">
+        Now David has time to debug
+    </div>
 </div>
 
 <div class="pres-scene">
@@ -257,6 +254,7 @@ Conclusion (3 min)
 
 <div class="pres-scene">
     <!-- TODO: more interesting cpu_intensive_call with details -->
+
     <py-repl>
         import time
         from calls import cpu_intensive_call
@@ -273,21 +271,25 @@ Conclusion (3 min)
 </div>
 
 <div class="pres-scene">
+    <h3 class="topic">time.perf_counter</h3>
+
     <py-repl>
-        print('time.perf_counter')
-        print('Pros: out of box')
+        print('Out of box')
     </py-repl>
 </div>
 
 <div class="pres-scene">
+    <h3 class="topic">time.perf_counter</h3>
+
     <py-repl>
-        print('time.perf_counter')
-        print('Pros: out of box')
-        print('Cons: need to edit code, no internal performance details')
+        print('Out of box')
+        print('Need to edit code, no internal details')
     </py-repl>
 </div>
 
 <div class="pres-scene">
+    <h3 class="topic">cProfile</h3>
+
     <py-repl>
         import cProfile
         import re
@@ -301,6 +303,8 @@ Conclusion (3 min)
 </div>
 
 <div class="pres-scene">
+    <h3 class="topic">cProfile</h3>
+
     <pre><code class="language-bash">$ python -m cProfile \
     -o out/cpu-intensive-program.prof \
     load/cpu-intensive-program.py
@@ -308,34 +312,38 @@ $ snakeviz out/cpu-intensive-program.prof
     </code></pre>
 
     <!-- TODO: image for more interesting cpu-intensive-program -->
-
-    <py-terminal></py-terminal>
 </div>
 
 <div class="pres-scene">
+    <h3 class="topic">cProfile</h3>
+
     <py-repl>
-        print('cProfile.run')
-        print('Pros: out of box')
-        print('Pros: internal details timings')
+        print('Out of box')
+        print('Internal details timings')
     </py-repl>
 </div>
 
 <div class="pres-scene">
+    <h3 class="topic">cProfile</h3>
+
     <py-repl>
-        print('cProfile.run')
-        print('Pros: out of box')
-        print('Pros: internal details timings')
-        print('Pros: have visualize extensions')
+        print('Out of box')
+        print('Internal details timings')
+        print('Have visualize extensions')
     </py-repl>
 </div>
 
 <div class="pres-scene">
+    <h3 class="topic">cProfile</h3>
+
     <py-repl>
         print('Perfect! Is this all?')
     </py-repl>
 </div>
 
 <div class="pres-scene">
+    <h3 class="topic">cProfile</h3>
+
     <py-repl>
         print('Perfect! Is this all?')
         print('Measuring something can change a behaviour of the system')
@@ -351,36 +359,68 @@ $ snakeviz out/cpu-intensive-program.prof
     <!-- py-spy record -o profile.svg -- python load/py-spy.py -->
 
     <img src="out/py-spy.svg">
+
+    <div class="pres-speech">
+        Sampling profilers - gets traces after
+    </div>
 </div>
 
 <div class="pres-scene">
+    <h3 class="topic">py-spy</h3>
+
     <py-repl>
-        print('py-spy')
-        print('Pros: sampling profiler')
+        print('Sampling profiler')
     </py-repl>
 </div>
 
 <div class="pres-scene">
-    <py-repl>
-        print('py-spy')
-        print('Pros: sampling profiler')
+    <h3 class="topic">py-spy</h3>
 
-        print('Cons: requires developer environment')
+    <py-repl>
+        print('Sampling profiler')
+        print('Requires developer environment')
+    </py-repl>
+</div>
+
+<div class="pres-scene pres-scene--choosen">
+    <h3 class="topic">Bonus: yappi for asyncio</h3>
+
+    <pre><code class="language-python" id="asyncio_yappi_py"></code></pre>
+
+    <pre><code class="language-bash">$ python load/asyncio_yappi.py > out/asyncio_yappi.txt
+$ snakeviz out/asyncio_yappi.prof
+    </code></pre>
+
+    <pre><code class="language-bash" id="asyncio_yappi_py_output"></code></pre>
+
+    <div class="pres-speech">
+        Also very interesting profiler. Supports asynchronous execution
+    </div>
+</div>
+
+<div class="pres-scene">
+    <h3 class="topic">Bonus: yappi for asyncio</h3>
+
+    <py-repl>
+        print('Supports asynchronous execution')
+        print('Different clock modes')
     </py-repl>
 </div>
 
 <div class="pres-scene">
     <!-- TODO: htop RAM image: python load/parsing-document-in-ram-intensive-application.py -->
-    <h2 class="topic">New day</h2>
+    <h2 class="topic">After a few days</h2>
+
+    <div class="pres-speech">
+        After a few days failing processes and 500.
+    </div>
 </div>
 
 <div class="pres-scene">
     <h2 class="topic">RAM</h2>
 
     <!--
-
         https://github.com/pyutils/line_profiler
-
     -->
 </div>
 
@@ -428,7 +468,6 @@ $ snakeviz out/cpu-intensive-program.prof
     <py-terminal></py-terminal>
 </div>
 
-
 <div class="pres-scene">
     <pre><code class="language-python" id="memory_profiler_py"></code></pre>
 
@@ -472,45 +511,21 @@ $ mprof plot -o out/mprofile.png out/mprofile.dat</code></pre>
         print('No longer maintained')
     </py-repl>
 
-
-<!--
-    https://stackify.com/top-5-python-memory-profilers/
-line-profiler: https://github.com/pyutils/line_profiler
-
-tracemalloc
-
-
-Debugonly runs: https://pythonspeed.com/fil/docs/
-poetry add filprofiler
-
-Pympler
-Guppy3
-
-If the issue is in Python code, tools like tracemalloc and Pympler can tell you which objects are leaking and what is preventing them from being leaked.
-If you’re leaking memory in C code, you can use tools like Valgrind.
-
-
-Fil will therefore tell you, in an easy to understand way:
-
-Where peak memory usage is, also known as the high-water mark.
-What code was responsible for allocating the memory that was present at that peak moment.
-This includes C/Fortran/C++/whatever extensions that don’t use Python’s memory allocation API (tracemalloc only does Python memory APIs).
-
-https://pythonspeed.com/memory/
-
--->
-</div>
-
-
-<div class="pres-scene">
-    <h2 class="topic">IO</h2>
+    <!-- memray -->
 </div>
 
 <div class="pres-scene">
     <h2 class="topic">IO</h2>
+
+    <!-- TODO: Image IO -->
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">General advices</h2>
     <ul>
         <li>Scale in</li>
         <li>Scale out</li>
+        <li>Network</li>
     </ul>
 </div>
 
@@ -536,7 +551,7 @@ https://pythonspeed.com/memory/
     <py-terminal></py-terminal>
 </div>
 
-<div class="pres-scene pres-scene--choosen">
+<div class="pres-scene">
     <h3 class="topic">opentelemetry</h3>
 
     <py-repl>
@@ -573,7 +588,27 @@ https://pythonspeed.com/memory/
 </div>
 
 <div class="pres-scene">
-    <h2 class="topic">Conclusion</h2>
+    <h2 class="topic">3 things to remember</h2>
+    <ul>
+        <li>Worth to have a chance win some time with resources</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">3 things to remember</h2>
+    <ul>
+        <li>Worth to have a chance win some time with resources</li>
+        <li>Monitor application errors</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">3 things to remember</h2>
+    <ul>
+        <li>Worth to have a chance win some time with resources</li>
+        <li>Monitor application errors</li>
+        <li>Measuring something can change a behaviour of the system</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
@@ -581,16 +616,19 @@ https://pythonspeed.com/memory/
     <h3 class="topic">PyScript, highlight.js, Prestatech GmbH</h3>
 </div>
 
-
 <div class="pres-scene">
     <h2 class="topic">References</h2>
     <ul>
+        <li>https://github.com/sumerc/yappi/blob/master/doc/clock_types.md
+            <ul>
+                <li><a href="https://en.wikipedia.org/wiki/CPU_time" target="_blank">CPU Time</a></li>
+                <li><a href="https://en.wikipedia.org/wiki/Elapsed_real_time" target="_blank">WALL Time</a></li>
+            </ul>
+        </li>
         <li>https://docs.python.org/3/library/tracemalloc.html</li>
         <li>https://bloomberg.github.io/memray/</li>
     </ul>
 </div>
-
-
 
 </body>
 </html>
