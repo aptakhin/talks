@@ -74,14 +74,6 @@ files = ["helpers.py"]
         get: (searchParams, prop) => searchParams.get(prop),
     });
 
-    // console.log('Params', params)
-    // const loadStageValue = params.stage
-    // let loadStage = null;
-    // if (loadStageValue != undefined) {
-    //     loadStage = parseInt(loadStageValue);
-    //     console.log('Load stage', currentStage, loadStageValue)
-    // }
-
     function clearStagePyTerminal(stageElem) {
         const pyTerminalElems = stageElem.getElementsByTagName("py-terminal")
         if (!pyTerminalElems.length) {
@@ -134,19 +126,6 @@ files = ["helpers.py"]
             currSceneElem.classList.remove("pres-scene--choosen")
         }
         showSceneElem.classList.add("pres-scene--choosen")
-
-        // const el = showSceneElem.getElementsByClassName('cm-content')
-        // console.log('FF', el);
-        // if (el.length) {
-        //     el[0].dispatchEvent(new KeyboardEvent("keyup", {
-        //         key: "enter",
-        //         // code: "KeyEnter", // put everything you need in this object.
-        //         keyCode: 13,
-        //         shiftKey: false, // you don't need to include values
-        //         ctrlKey: true,  // if you aren't going to use them.
-        //         metaKey: false   // these are here for example's sake.
-        //     }));
-        // }
     }
 
     window.addEventListener('load', (event) => {
