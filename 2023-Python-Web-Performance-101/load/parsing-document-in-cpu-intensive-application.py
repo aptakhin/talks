@@ -19,10 +19,10 @@ def exit_chld(x, y):
 
 def f(x):
     global stop_loop
-    fill_memory = ['hello', 'world'] * 1000
+    fill_memory = ['hello', 'world'] * 10000000
     while not stop_loop:
         x*x
-        time.sleep(0)
+        time.sleep(5)
 
 def cpu_intensive_call():
     x = 1
@@ -39,5 +39,5 @@ if __name__ == '__main__':
     print('Running load on CPU(s)')
     print('Utilizing %d cores' % processes)
     print('-' * 20)
-    pool = Pool(processes, initializer=lambda x: Process(name='parsing-document-on-cpu-intensive-application.py'), initargs=['parsing-document-on-cpu-intensive-application'])
+    pool = Pool(processes, initializer=lambda x: Process(name='parsing-document-in-cpu-intensive-application.py'), initargs=['parsing-document-in-cpu-intensive-application'])
     pool.map(f, range(processes))
