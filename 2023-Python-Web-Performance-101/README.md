@@ -15,8 +15,8 @@ PERFORMANCE23IP=...
 
 ssh root@PERFORMANCE23IP
 
-# CPU
-python load/parsing-document-on-cpu-intensive-application.py
+python load/parsing-document-in-cpu-intensive-application.py
+python load/parsing-document-in-ram-intensive-application.py
 
 
 # Finishing

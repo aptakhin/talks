@@ -74,6 +74,13 @@ body {
     vertical-align: center;
 }
 
+.first {
+    font-weight: 300;
+    text-align: center;
+    vertical-align: center;
+    letter-spacing: 0.1em;
+}
+
 .vertical {
     writing-mode: vertical-lr;
     text-orientation: mixed;
@@ -100,11 +107,11 @@ body {
     height: 100%;
 }
 
-img {
+/* img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
+} */
 
 .annotation {
     position: absolute;
@@ -126,6 +133,12 @@ img {
 .annotation2 {
     font-size: 8pt;
     text-align: right;
+}
+
+.central {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 </style>
 
@@ -269,34 +282,21 @@ Conclusion (3 min)
 </div>
 
 <div class="pres-scene pres-scene--choosen">
-    <h2 class="topic">First almost white screen</h2>
+    <h2 class="first">First almost white screen</h2>
 </div>
 
 <div class="pres-scene">
-    <h2 class="topic">Second almost white screen</h2>
+    <h2 class="first">Second almost white screen</h2>
 </div>
 
 <div class="pres-scene">
     <h2>Python Web Performance 101: Uncovering the root causes</h2>
 
-    <h2>By Alex Ptakhin</h2>
-    <h2>Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin</h2>
+    <h4>By Alex Ptakhin</h4>
+    <h4>Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin</h4>
 
-    <h3><ul>
-        <li><a href="mailto:me@aptakhin.name" target="_blank">me@aptakhin.name</a></li>
-        <li><a href="https://github.com/aptakhin" target="_blank">github.com/aptakhin</a></li>
-        <li><a href="https://twitter.com/aptakhin" target="_blank">twitter.com/aptakhin</a></li>
-        <li><a href="https://hachyderm.io/@AlexPtakhin" target="_blank">hachyderm.io/@AlexPtakhin</a></li>
-        <li><a href="https://linkedin.com/in/aptakhin" target="_blank">linkedin.com/in/aptakhin</a></li>
-    </ul></h3>
-</div>
-
-<div class="pres-scene">
-    <h2>Who at least once used timeit, time.perfcounter(), CPU or memory usage profilers?</h2>
-
-    <div class="pres-speech">
-        Who at least once used timeit, time.perfcounter(), CPU or memory usage profilers?
-    </div>
+    <h4 style="margin-bottom: 0.5em;">Github</h4>
+    <img src="./img/qrcode-github-aptakhin.png" style="width: 20em" />
 </div>
 
 <div class="pres-scene">
@@ -310,8 +310,16 @@ Conclusion (3 min)
 </div>
 
 <div class="pres-scene">
-    <div>
-        <img src="img/coffee-869203_1920.jpg" width="800" height="600">
+    <h2>Who at least once used timeit, time.perfcounter(), CPU or memory usage profilers?</h2>
+
+    <div class="pres-speech">
+        Who at least once used timeit, time.perfcounter(), CPU or memory usage profilers?
+    </div>
+</div>
+
+<div class="pres-scene">
+    <div class="central" style="width: 50em">
+        <img src="img/coffee-869203_1920.jpg" style="width: 50em">
         <span class="annotation2">
             Image by <a href="https://pixabay.com/users/foundry-923783/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=869203">Foundry Co</a> from <a href="https://pixabay.com//?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=869203">Pixabay</a>
         </span>
@@ -325,15 +333,13 @@ Conclusion (3 min)
 <div class="pres-scene">
     <h2 class="topic">htop</h2>
 
-    <img src="img/cpu-issues.png" width="2416" height="1684" />
+    <img src="img/cpu-issues.png" class="central" style="width: 50em" />
 
     <!-- TODO: htop CPU image: python load/parsing-document-in-cpu-intensive-application.py -->
 </div>
 
 <div class="pres-scene">
-    <py-repl>
-        print('Scale-in: more CPU, more RAM')
-    </py-repl>
+    <h3 class="topic">Scale-in: more CPU, more RAM</h3>
 
     <div class="pres-speech">
         Now David has time to debug
@@ -403,7 +409,7 @@ Conclusion (3 min)
 $ snakeviz out/cpu-intensive-program.prof
     </code></pre>
 
-    <!-- TODO: image for more interesting cpu-intensive-program -->
+    <img src="img/snakeviz.png" class="central" style="width: 50em" />
 </div>
 
 <div class="pres-scene">
@@ -450,7 +456,7 @@ $ snakeviz out/cpu-intensive-program.prof
 
     <!-- py-spy record -o profile.svg -- python load/py-spy.py -->
 
-    <img src="out/py-spy.svg">
+    <img src="out/py-spy.svg" class="central" style="width: 50em">
 
     <div class="pres-speech">
         Sampling profilers - gets traces after
@@ -511,7 +517,7 @@ $ snakeviz out/asyncio_yappi.prof
 <div class="pres-scene">
     <h2 class="topic">htop</h2>
 
-    <img src="img/ram-issues.png" width="2416" height="1684" />
+    <img src="img/ram-issues.png" class="central" style="width: 50em" />
 </div>
 
 <div class="pres-scene">
@@ -608,8 +614,20 @@ $ mprof plot -o out/mprofile.png out/mprofile.dat</code></pre>
         print('Uses deprecated matplotlib.pylab')
         print('No longer maintained')
     </py-repl>
+</div>
 
-    <!-- memray -->
+<div class="pres-scene">
+
+    <py-repl>
+        python3 -m pip install memray
+    </py-repl>
+
+    <pre><code class="language-bash">$ poetry add memray
+$ memray run -o out/memray.bin load/py_ff.py
+$ memray flamegraph out/memray.bin
+$ # ... out/memray-flamegraph-memray.html</code></pre>
+
+    <img src="img/memray.png" class="central" style="width: 50em" />
 </div>
 
 <div class="pres-scene">
