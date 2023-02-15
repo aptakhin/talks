@@ -40,6 +40,10 @@ files = ["calls.py"]
 from = "./"
 files = ["helpers.py"]
 
+[[fetch]]
+from = "./"
+files = ["otel_helpers.py"]
+
 </py-config>
 
 <style type="text/css">
@@ -239,6 +243,8 @@ body {
         load_content('out/asyncio_yappi.txt', 'asyncio_yappi_py_output')
 
         load_content('load/py-spy.py', 'py_spy_py')
+
+        load_content('otel_helpers.py', 'otel_helpers_py')
     })
 
     document.addEventListener('keyup', (event) => {
@@ -249,6 +255,9 @@ body {
             showScene(+1)
         } else if (event.code == 'KeyP' && event.ctrlKey) {
             tranformCurrentSceneRepl()
+        } else if (event.code == 'KeyT' && event.ctrlKey) {
+            const currSceneElems = document.getElementsByClassName("pres-scene--choosen")
+            clearStagePyTerminal(currSceneElem)
         }
     });
 </script>
@@ -281,7 +290,7 @@ Conclusion (3 min)
 
 </div>
 
-<div class="pres-scene pres-scene--choosen">
+<div class="pres-scene">
     <h2 class="first">First almost white screen</h2>
 </div>
 
@@ -659,48 +668,45 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
         tracer = trace.get_tracer(__name__)
 
         if __name__ == '__main__':
-            with tracer.start_as_current_span("cpu_intensive_application") as parent:
-                with tracer.start_as_current_span("cpu_intensive_call") as child:
+            with tracer.start_as_current_span("cpu_intensive_call") as child:
                 cpu_intensive_call(num_iterations=5000000)
     </py-repl>
 
     <py-terminal></py-terminal>
 </div>
 
-<div class="pres-scene">
+<div class="pres-scene pres-scene--choosen">
     <h3 class="topic">opentelemetry</h3>
 
     <py-repl>
+        from otel_helpers import catchtime, init_otel
         from opentelemetry import trace, metrics
-        from opentelemetry.sdk.trace import TracerProvider
-        from opentelemetry.sdk.trace.export import SimpleSpanProcessor, ConsoleSpanExporter
-        from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-        from opentelemetry.sdk.metrics import MeterProvider
-        from opentelemetry.sdk.metrics.export import InMemoryMetricReader, ConsoleMetricExporter
-
-        resource = Resource(attributes={
-            SERVICE_NAME: "my-service"
-        })
-
-        reader = InMemoryMetricReader()
-        provider = MeterProvider(resource=resource, metric_readers=[reader])
-        if not metrics.get_meter_provider():
-            metrics.set_meter_provider(provider)
-
-        provider = TracerProvider(resource=resource)
-        processor = SimpleSpanProcessor(ConsoleSpanExporter())
-        provider.add_span_processor(processor)
-        trace.set_tracer_provider(provider)
 
         from calls import cpu_intensive_call
 
+
+        init_otel()
+
+
+        tracer = trace.get_tracer(__name__)
+        meter = metrics.get_meter(__name__)
+        execution_time_hgram = meter.create_histogram('execution_time')
+
         for x in range(3):
             with tracer.start_as_current_span("cpu_intensive_application") as parent:
-                with tracer.start_as_current_span("cpu_intensive_call") as child:
+                with tracer.start_as_current_span("cpu_intensive_call") as child, catchtime() as t:
                     cpu_intensive_call(num_iterations=5000000)
+                execution_time_hgram.record(t())
     </py-repl>
 
     <py-terminal></py-terminal>
+</div>
+
+
+<div class="pres-scene">
+    <h3 class="topic">opentelemetry, init_otel</h3>
+
+    <pre><code class="language-python" id="otel_helpers_py"></code></pre>
 </div>
 
 <div class="pres-scene">
