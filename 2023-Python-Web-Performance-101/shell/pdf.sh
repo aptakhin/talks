@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-(cd pdf && npx playwright test)
+(cd pdf && rm -rf *.pdf && npx playwright test)
