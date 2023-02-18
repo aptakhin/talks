@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./deps/pyscript.css" />
 
     <!-- https://pyscript.net/latest/pyscript.js -->
-    <script defer src="./deps/pyscript.js"></script>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
 
     <!-- //cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css -->
     <link rel="stylesheet"
@@ -33,7 +33,7 @@ files = ["parsing-document-in-cpu-intensive-application.py"]
 
 [[fetch]]
 from = "./load"
-files = ["py_ff.py"]
+files = ["ram-intensive-program.py"]
 
 [[fetch]]
 from = "./"
@@ -61,20 +61,8 @@ body {
     /* font-size: 3.5em; */
 }
 
-h1 h2 h3 h4 {
+h1, h2, h3, h4 {
     font-weight: 400;
-    text-align: center;
-}
-
-h2 {
-    /* font-size: 5em; */
-    /* font-weight: 400; */
-
-}
-
-h3 {
-    /* font-size: 4.5em; */
-    /* font-weight: 400; */
     text-align: center;
 }
 
@@ -122,6 +110,10 @@ h3 {
 .annotation2 {
     font-size: 8pt;
     text-align: right;
+}
+
+.left {
+    text-align: left;
 }
 
 .central {
@@ -294,10 +286,10 @@ Conclusion (3 min)
 <div class="pres-scene">
     <h2 class="first">Python Web Performance 101: Uncovering the root causes</h2>
 
-    <h4>By Alex Ptakhin</h4>
-    <h4>Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin</h4>
+    <h4 class="left">By Alex Ptakhin</h4>
+    <h4 class="left">Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin</h4>
 
-    <h4 style="margin-bottom: 0.5em;">Github</h4>
+    <h4 class="left" style="margin-bottom: 0.5em;">Github</h4>
     <img src="./img/qrcode-github-aptakhin.png" style="width: 15em" />
 </div>
 
@@ -347,11 +339,15 @@ Conclusion (3 min)
     <h2 class="topic">htop</h2>
 
     <img src="img/cpu-issues.png" class="central central-image" />
-
-    <!-- TODO: htop CPU image: python load/parsing-document-in-cpu-intensive-application.py -->
 </div>
 
 <div class="pres-scene">
+    <h2 class="topic">Temporary solution</h3>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Temporary solution</h3>
+
     <h3 class="topic">Scale-up: more CPU, more RAM</h3>
 
     <div class="pres-speech">
@@ -364,7 +360,8 @@ Conclusion (3 min)
 </div>
 
 <div class="pres-scene">
-    <!-- TODO: more interesting cpu_intensive_call with details -->
+    <!-- more interesting cpu_intensive_call with details -->
+    <h2 class="topic">time.perf_counter</h2>
 
     <py-repl>
         import time
@@ -382,24 +379,22 @@ Conclusion (3 min)
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">time.perf_counter</h3>
-
-    <py-repl>
-        print('Out of box')
-    </py-repl>
+    <h2 class="topic">time.perf_counter</h2>
+    <ul>
+        <li>Out of box</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">time.perf_counter</h3>
-
-    <py-repl>
-        print('Out of box')
-        print('Need to edit code, no internal details')
-    </py-repl>
+    <h2 class="topic">time.perf_counter</h2>
+    <ul>
+        <li>Out of box</li>
+        <li>Need to edit code, no internal details</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">cProfile</h3>
+    <h2 class="topic">cProfile</h2>
 
     <py-repl>
         import cProfile
@@ -414,7 +409,7 @@ Conclusion (3 min)
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">cProfile</h3>
+    <h2 class="topic">cProfile</h2>
 
     <pre><code class="language-bash">$ python -m cProfile \
     -o out/cpu-intensive-program.prof \
@@ -426,48 +421,53 @@ $ snakeviz out/cpu-intensive-program.prof
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">cProfile</h3>
-
-    <py-repl>
-        print('Out of box')
-        print('Internal details timings')
-    </py-repl>
+    <h2 class="topic">cProfile</h2>
+    <ul>
+        <li>Out of box</li>
+        <li>Internal details timings</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">cProfile</h3>
-
-    <py-repl>
-        print('Out of box')
-        print('Internal details timings')
-        print('Have visualize extensions')
-    </py-repl>
+    <h2 class="topic">cProfile</h2>
+    <ul>
+        <li>Out of box</li>
+        <li>Internal details timings</li>
+        <li>Have visualize extensions</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">cProfile</h3>
-
-    <py-repl>
-        print('Perfect! Is this all?')
-    </py-repl>
+    <h2 class="topic">CPU Profilers</h2>
+    <ul>
+        <li>Perfect! Is this all?</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">cProfile</h3>
-
-    <py-repl>
-        print('Perfect! Is this all?')
-        print('Measuring something can change a behaviour of the system')
-    </py-repl>
+    <h2 class="topic">CPU Profilers</h2>
+    <ul>
+        <li>Perfect! Is this all?</li>
+        <li>Not exactly. Measuring something can change a behaviour of the system</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
+    <h2 class="topic">CPU Profilers</h2>
+    <ul>
+        <li>Perfect! Is this all?</li>
+        <li>Not exactly. Measuring something can change a behaviour of the system</li>
+        <li>Let's take a look to sampling profilers</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">py-spy</h2>
+
     <pre><code class="language-python" id="py_spy_py"></code></pre>
 
     <pre><code class="language-bash">$ py-spy record -o out/py-spy.svg -- python load/py-spy.py
     </code></pre>
-
-    <!-- py-spy record -o profile.svg -- python load/py-spy.py -->
 
     <img src="out/py-spy.svg" class="central" style="width: 40em">
 
@@ -477,24 +477,22 @@ $ snakeviz out/cpu-intensive-program.prof
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">py-spy</h3>
-
-    <py-repl>
-        print('Sampling profiler')
-    </py-repl>
+    <h2 class="topic">py-spy</h2>
+    <ul>
+        <li>Sampling profiler</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">py-spy</h3>
-
-    <py-repl>
-        print('Sampling profiler')
-        print('Requires development environment')
-    </py-repl>
+    <h2 class="topic">py-spy</h2>
+    <ul>
+        <li>Sampling profiler</li>
+        <li>Requires development environment</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">Bonus: yappi for asyncio</h3>
+    <h2 class="topic">Bonus: yappi for asyncio</h2>
 
     <pre><code class="language-python" id="asyncio_yappi_py"></code></pre>
 
@@ -510,16 +508,18 @@ $ snakeviz out/asyncio_yappi.prof
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">Bonus: yappi for asyncio</h3>
-
-    <py-repl>
-        print('Supports asynchronous execution')
-        print('Different clock modes')
-    </py-repl>
+    <h2 class="topic">Bonus: yappi for asyncio</h2>
+    <ul>
+        <li>Supports asynchronous execution</li>
+        <li>Different clock modes</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
-    <!-- TODO: htop RAM image: python load/parsing-document-in-ram-intensive-application.py -->
+    <h2 class="topic">Problem found</h2>
+</div>
+
+<div class="pres-scene">
     <h2 class="topic">After a few days</h2>
 
     <div class="pres-speech">
@@ -538,7 +538,7 @@ $ snakeviz out/asyncio_yappi.prof
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">sys.getsizeof</h3>
+    <h2 class="topic">sys.getsizeof</h2>
 
     <py-repl>
         import sys
@@ -552,22 +552,19 @@ $ snakeviz out/asyncio_yappi.prof
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">tracemalloc</h3>
+    <h2 class="topic">tracemalloc</h2>
 
     <py-repl>
         import tracemalloc
+        from ram_intensive_program import ram_intensive_call
+
         tracemalloc.start()
-        from py_ff import my_func
-        my_func()
 
         snapshot1 = tracemalloc.take_snapshot()
-
-        my_func()
-
+        ram_intensive_call()
         snapshot2 = tracemalloc.take_snapshot()
 
         top_stats = snapshot2.compare_to(snapshot1, 'lineno')
-
         print("[ Top 10 differences ]")
         for stat in top_stats[:10]:
             print(stat)
@@ -577,6 +574,8 @@ $ snakeviz out/asyncio_yappi.prof
 </div>
 
 <div class="pres-scene">
+    <h2 class="topic">memory-profiler</h2>
+
     <pre><code class="language-python" id="memory_profiler_py"></code></pre>
 
     <pre><code class="language-bash">$ poetry add memory_profiler
@@ -587,22 +586,9 @@ $ python -m memory_profiler load/memory_profiler.py
 </div>
 
 <div class="pres-scene">
+    <h2 class="topic">memory-profiler</h2>
+
     <pre><code class="language-python" id="memory_profiler_py"></code></pre>
-
-    <!--
-        1. --attach PID.
-
-        2. --backend {psutil,psutil_pss,psutil_uss,posix,tracemalloc}
-                    Current supported backends: 'psutil', 'psutil_pss', 'psutil_uss', 'posix', 'tracemalloc'. Defaults to 'psutil'.
-
-        3. include-children and multiprocess
-
-        4. python -m memory_profiler --pdb-mmem=100 my_script.py
-
-        5. >>> from memory_profiler import memory_usage
->>> mem_usage = memory_usage(-1, interval=.2, timeout=1)
->>> print(mem_usage)
-    [7.296875, 7.296875, 7.296875, 7.296875, 7.296875] -->
 
     <pre><code class="language-bash">$ poetry add matplotlib
 $ mprof run -o out/mprofile.dat load/memory_profiler.py
@@ -612,22 +598,19 @@ $ mprof plot -o out/mprofile.png out/mprofile.dat</code></pre>
 </div>
 
 <div class="pres-scene">
-    <py-repl>
-        print('memory-profiler')
-        print('Code changes for the detailed overview')
-        print('Uses deprecated matplotlib.pylab')
-        print('No longer maintained')
-    </py-repl>
+    <h2 class="topic">memory-profiler</h2>
+    <ul>
+        <li>Code changes for the detailed overview</li>
+        <li>Uses deprecated matplotlib.pylab</li>
+        <li>No longer maintained</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
-
-    <py-repl>
-        python3 -m pip install memray
-    </py-repl>
+    <h2 class="topic">memray</h2>
 
     <pre><code class="language-bash">$ poetry add memray
-$ memray run -o out/memray.bin load/py_ff.py
+$ memray run -o out/memray.bin load/ram_intensive_call.py
 $ memray flamegraph out/memray.bin
 $ # ... out/memray-flamegraph-memray.html</code></pre>
 
@@ -656,7 +639,7 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">Open Telemetry</h3>
+    <h2 class="topic">Open Telemetry</h2>
 
     <py-repl>
         from calls import cpu_intensive_call
@@ -673,7 +656,7 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
 </div>
 
 <div class="pres-scene">
-    <h3 class="topic">Open Telemetry</h3>
+    <h2 class="topic">Open Telemetry</h2>
 
     <py-repl>
         from otel_helpers import catchtime, init_otel
@@ -730,30 +713,32 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
 <div class="pres-scene">
     <h2 class="topic">Thank you! Questions?</h2>
 
-    <h3 class="topic">PyScript, highlight.js, Prestatech GmbH, OpenSans Font</h3>
+    <h3 class="topic left">Gratitudes</h3>
+    <ul>
+        <li><a href="https://pyscript.net" target="_blank">PyScript</a> for empowering the presentation</li>
+        <li><a href="https://highlightjs.com" target="_blank">highlight.js </a> for syntax highlighting,</li>
+        <li><OpenSans Font used</li>
+        <li><a href="https:/playwright.com" target="_blank">playwright</a> for help with PDF slides</li>
+        <li><a href="https://prestatech.com" target="_blank">Prestatech GmbH</a> for support this talk</li>
+    </ul>
 
-    <h2>We are hiring!</h2>
+    <h2 class="left">We are hiring!</h2>
     <!-- qr code? -->
 
-    <h2>By Alex Ptakhin</h2>
-    <h2>Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin</h2>
+    <h2 class="left">By Alex Ptakhin, Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin</h2>
 
+    <a href="mailto:me@aptakhin.name" target="_blank">me@aptakhin.name</a> / <a href="https://github.com/aptakhin" target="_blank">github.com/aptakhin</a>/ <a href="https://twitter.com/aptakhin" target="_blank">twitter.com/aptakhin</a> / <a href="https://hachyderm.io/@AlexPtakhin" target="_blank">hachyderm.io/@AlexPtakhin</a></li> / <a href="https://linkedin.com/in/aptakhin" target="_blank">linkedin.com/in/aptakhin</a>
+
+    <h4 class="left">Presentation sources</h4>
     <a href="https://github.com/aptakhin/talks/blob/make-python-web-performance-101/2023-Python-Web-Performance-101/index.html" target="_blank">github.com/aptakhin/talks/2023-Python-Web-Performance-101</a>
 
-    <h3><ul>
-        <li><a href="mailto:me@aptakhin.name" target="_blank">me@aptakhin.name</a></li>
-        <li><a href="https://github.com/aptakhin" target="_blank">github.com/aptakhin</a></li>
-        <li><a href="https://twitter.com/aptakhin" target="_blank">twitter.com/aptakhin</a></li>
-        <li><a href="https://hachyderm.io/@AlexPtakhin" target="_blank">hachyderm.io/@AlexPtakhin</a></li>
-        <li><a href="https://linkedin.com/in/aptakhin" target="_blank">linkedin.com/in/aptakhin</a></li>
-    </ul></h3>
-
+    <!-- qr code of presentation -->
     <img src="./img/qrcode-github-aptakhin.png" width="450" height="450" />
 </div>
 
 <div class="pres-scene">
-    <h2 class="topic">Secret references slide</h2>
-    <ul>
+    <h2 class="topic">Secret reference slide</h2>
+    <ul class="left">
         <li>Yappi clock types:
             <ul>
                 <li><a href="https://en.wikipedia.org/wiki/CPU_time" target="_blank">CPU Time</a></li>
