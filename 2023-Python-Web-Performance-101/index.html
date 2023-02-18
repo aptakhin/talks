@@ -37,15 +37,7 @@ files = ["ram-intensive-program.py"]
 
 [[fetch]]
 from = "./"
-files = ["objects.py"]
-
-[[fetch]]
-from = "./"
 files = ["calls.py"]
-
-[[fetch]]
-from = "./"
-files = ["helpers.py"]
 
 [[fetch]]
 from = "./"
@@ -77,6 +69,7 @@ h1, h2, h3, h4 {
 .pres-scene {
     display: none;
     font-size: 1.5em;
+    padding: 1em;
 }
 
 .pres-speech {
@@ -123,7 +116,7 @@ h1, h2, h3, h4 {
 }
 
 .central-image {
-    width: 28em;
+    width: 32em;
 }
 </style>
 
@@ -133,6 +126,7 @@ h1, h2, h3, h4 {
     });
 
     function clearStagePyTerminal(stageElem) {
+        console.log('Clean py-terminal', stageElem)
         const pyTerminalElems = stageElem.getElementsByTagName("py-terminal")
         if (!pyTerminalElems.length) {
             return;
@@ -146,14 +140,19 @@ h1, h2, h3, h4 {
         preTerminalElems[0].innerHTML = ''
     }
 
-    function load_content(file, id) {
+    function loadContent(file, id) {
         console.log('Loading', file, id)
+        const doc = document.getElementById(id)
+        if (!doc) {
+            console.error('No element with id', id)
+            return
+        }
         const url = file
         fetch(url)
         .then(r => r.text())
         .then(t => {
-            document.getElementById(id).innerHTML = t
-            hljs.highlightAll();
+            console.log('Try to update element', doc, file, id)
+            doc.innerHTML = t
         })
     }
 
@@ -179,8 +178,13 @@ h1, h2, h3, h4 {
             return
         }
 
+        hljs.highlightAll();
+
         if (currSceneElem && currSceneElem != showSceneElem) {
-            clearStagePyTerminal(currSceneElem)
+            if (modifier > 0) {
+                // Clear terminal when go forward, not backward
+                clearStagePyTerminal(showSceneElem)
+            }
             currSceneElem.classList.remove("pres-scene--choosen")
         }
         showSceneElem.classList.add("pres-scene--choosen")
@@ -217,15 +221,17 @@ h1, h2, h3, h4 {
     window.addEventListener('load', (event) => {
         console.log('Show stage', 'xxx')
 
-        load_content('load/memory_profiler.py', 'memory_profiler_py')
-        load_content('out/memory_profiler.txt', 'memory_profiler_bash_output')
+        hljs.configure({
+            ignoreUnescapedHTML: true,
+        })
 
-        load_content('load/asyncio_yappi.py', 'asyncio_yappi_py')
-        load_content('out/asyncio_yappi.txt', 'asyncio_yappi_py_output')
+        loadContent('load/memory_profiler.py', 'memory_profiler_py')
+        loadContent('out/memory_profiler.txt', 'memory_profiler_bash_output')
 
-        load_content('load/py-spy.py', 'py_spy_py')
+        loadContent('load/asyncio_yappi.py', 'asyncio_yappi_py')
+        loadContent('out/asyncio_yappi.txt', 'asyncio_yappi_py_output')
 
-        load_content('otel_helpers.py', 'otel_helpers_py')
+        loadContent('load/cpu-intensive-program.py', 'cpu_intensive_program_py')
     })
 
     document.addEventListener('keyup', (event) => {
@@ -464,10 +470,12 @@ $ snakeviz out/cpu-intensive-program.prof
 <div class="pres-scene">
     <h2 class="topic">py-spy</h2>
 
-    <pre><code class="language-python" id="py_spy_py"></code></pre>
+    <pre><code class="language-python" id="cpu_intensive_program_py"></code></pre>
 
-    <pre><code class="language-bash">$ py-spy record -o out/py-spy.svg -- python load/py-spy.py
+    <pre><code class="language-bash">$ py-spy record -o out/py-spy.svg -- python load/cpu-intensive-program.py
     </code></pre>
+
+    <!-- py-spy record -o out/py-spy.svg -- python load/cpu_intensive_program_py -->
 
     <img src="out/py-spy.svg" class="central" style="width: 40em">
 
@@ -581,20 +589,18 @@ $ snakeviz out/asyncio_yappi.prof
     <pre><code class="language-bash">$ poetry add memory_profiler
 $ python -m memory_profiler load/memory_profiler.py
     </code></pre>
+    <!-- python -m memory_profiler load/memory_profiler.py > out/memory_profiler.txt -->
 
     <pre><code class="language-bash" id="memory_profiler_bash_output"></code></pre>
-</div>
 
-<div class="pres-scene">
+    <!-- <div class="pres-scene">
     <h2 class="topic">memory-profiler</h2>
-
-    <pre><code class="language-python" id="memory_profiler_py"></code></pre>
 
     <pre><code class="language-bash">$ poetry add matplotlib
 $ mprof run -o out/mprofile.dat load/memory_profiler.py
 $ mprof plot -o out/mprofile.png out/mprofile.dat</code></pre>
 
-    <pre><code class="language-bash" id="memory_profiler_bash_overview_output"></code></pre>
+</div> -->
 </div>
 
 <div class="pres-scene">
@@ -610,7 +616,7 @@ $ mprof plot -o out/mprofile.png out/mprofile.dat</code></pre>
     <h2 class="topic">memray</h2>
 
     <pre><code class="language-bash">$ poetry add memray
-$ memray run -o out/memray.bin load/ram_intensive_call.py
+$ memray run -o out/memray.bin load/ram-intensive-program.py
 $ memray flamegraph out/memray.bin
 $ # ... out/memray-flamegraph-memray.html</code></pre>
 
@@ -678,8 +684,13 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
     </py-repl>
 
     <py-terminal></py-terminal>
+</div>
 
-    <!-- opentelemetry show image dashboards -->
+
+<div class="pres-scene">
+    <h2 class="topic">Open Telemetry</h2>
+
+    <img src="./img/grafana.png" class="central central-image" />
 </div>
 
 <div class="pres-scene">
@@ -702,38 +713,31 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
 </div>
 
 <div class="pres-scene">
-    <h2 class="topic">3 things to remember</h2>
+    <h2 class="topic"><s>3</s> 4 things to remember</h2>
     <ul>
         <li>Worth to have a chance win some time with resources</li>
         <li>Monitor application errors</li>
         <li>Measuring something can change a behaviour of the system</li>
+        <li>Tuning is good and remember pure Python is not about the performance</li>
     </ul>
 </div>
 
 <div class="pres-scene">
     <h2 class="topic">Thank you! Questions?</h2>
 
-    <h3 class="topic left">Gratitudes</h3>
+    <h3 class="topic left" style="padding-bottom: 0pt">Gratitudes</h3>
     <ul>
-        <li><a href="https://pyscript.net" target="_blank">PyScript</a> for empowering the presentation</li>
-        <li><a href="https://highlightjs.com" target="_blank">highlight.js </a> for syntax highlighting,</li>
-        <li><OpenSans Font used</li>
+        <li><a href="https://pyscript.net" target="_blank">PyScript</a> for empowering the presentation <img src="./img/pyscript-sticker-black.svg" width="50" class="left" style="position: relative; top: 3pt;" /></li>
+        <li><a href="https://highlightjs.org" target="_blank">highlight.js</a> for syntax highlighting</li>
         <li><a href="https:/playwright.com" target="_blank">playwright</a> for help with PDF slides</li>
-        <li><a href="https://prestatech.com" target="_blank">Prestatech GmbH</a> for support this talk</li>
+        <li><a href="https://prestatech.com" target="_blank">Prestatech GmbH</a> for support this talk (and we are hiring)</li>
     </ul>
 
-    <h2 class="left">We are hiring!</h2>
-    <!-- qr code? -->
+    <p>By Alex Ptakhin, Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin. <a href="mailto:me@aptakhin.name" target="_blank">me@aptakhin.name</a> / <a href="https://github.com/aptakhin" target="_blank">github.com/aptakhin</a> / <a href="https://twitter.com/aptakhin" target="_blank">twitter.com/aptakhin</a> / <a href="https://hachyderm.io/@AlexPtakhin" target="_blank">hachyderm.io/@AlexPtakhin</a></li> / <a href="https://linkedin.com/in/aptakhin" target="_blank">linkedin.com/in/aptakhin</a>
+    </p>
 
-    <h2 class="left">By Alex Ptakhin, Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin</h2>
-
-    <a href="mailto:me@aptakhin.name" target="_blank">me@aptakhin.name</a> / <a href="https://github.com/aptakhin" target="_blank">github.com/aptakhin</a>/ <a href="https://twitter.com/aptakhin" target="_blank">twitter.com/aptakhin</a> / <a href="https://hachyderm.io/@AlexPtakhin" target="_blank">hachyderm.io/@AlexPtakhin</a></li> / <a href="https://linkedin.com/in/aptakhin" target="_blank">linkedin.com/in/aptakhin</a>
-
-    <h4 class="left">Presentation sources</h4>
-    <a href="https://github.com/aptakhin/talks/blob/make-python-web-performance-101/2023-Python-Web-Performance-101/index.html" target="_blank">github.com/aptakhin/talks/2023-Python-Web-Performance-101</a>
-
-    <!-- qr code of presentation -->
-    <img src="./img/qrcode-github-aptakhin.png" width="450" height="450" />
+    <p>Presentation sources: <a href="https://github.com/aptakhin/talks/blob/make-python-web-performance-101/2023-Python-Web-Performance-101/index.html" target="_blank">github.com/aptakhin/talks/2023-Python-Web-Performance-101</a></p>
+    <img src="./img/qrcode-github-talk.png" width="200" height="200" class="left" />
 </div>
 
 <div class="pres-scene">
@@ -747,6 +751,7 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
         </li>
         <li>https://docs.python.org/3/library/tracemalloc.html</li>
         <li>https://bloomberg.github.io/memray/</li>
+        <li>https://opentelemetry.io/ecosystem/vendors/</li>
         <li>init_otel implementantion <a href="./otel_helpers.py" target="_blank">python source</a></li>
     </ul>
 

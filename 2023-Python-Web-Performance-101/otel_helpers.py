@@ -6,10 +6,10 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor, ConsoleSpanExporter
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import InMemoryMetricReader, ConsoleMetricExporter, PeriodicExportingMetricReader
+from opentelemetry.sdk.metrics.export import InMemoryMetricReader, ConsoleMetricExporter
 
 
-def init_otel():
+def init_otel() -> None:
     resource = Resource(attributes={
         SERVICE_NAME: "my-service"
     })

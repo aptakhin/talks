@@ -2,11 +2,11 @@ Filename: load/memory_profiler.py
 
 Line #    Mem usage    Increment  Occurrences   Line Contents
 =============================================================
-     1   15.258 MiB   15.258 MiB           1   @profile
-     2                                         def my_func():
-     3   22.891 MiB    7.633 MiB           1       a = [1] * (10 ** 6)
-     4  175.480 MiB  152.590 MiB           1       b = [2] * (2 * 10 ** 7)
-     5   22.891 MiB -152.590 MiB           1       del b
-     6   22.891 MiB    0.000 MiB           1       return a
+     8   33.801 MiB   33.801 MiB           1   @profile
+     9                                         def ram_intensive_call() -> None:
+    10   35.766 MiB    0.004 MiB         101       for it in range(100):
+    11   35.766 MiB    0.461 MiB         100           pdf = PDFQuery('load/sample.pdf')
+    12   35.766 MiB    1.305 MiB         100           pdf.load()
+    13   35.766 MiB    0.195 MiB         100           handle_pdf(pdf)
 
 
