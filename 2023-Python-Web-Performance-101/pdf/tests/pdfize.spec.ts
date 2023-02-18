@@ -3,7 +3,7 @@ import { test } from '@playwright/test';
 
 test('screenshot', async ({ page }) => {
   await page.goto('http://localhost:4004/')
-  await new Promise(f => setTimeout(f, 1000));
+  await new Promise(f => setTimeout(f, 15000));
   await page.locator("py-splashscreen").isHidden();
   await new Promise(f => setTimeout(f, 1000));
 
