@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <title>Python Web Performance 101: Uncovering the root causes</title>
+
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <!-- https://pyscript.net/latest/pyscript.css -->
+    <link rel="stylesheet" href="./deps/pyscript.css" />
+
+    <!-- https://pyscript.net/latest/pyscript.js -->
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+
+    <!-- //cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css -->
+    <link rel="stylesheet"
+      href="./deps/default.min.css">
+
+    <!-- //cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js -->
+    <script src="./deps/highlight.min.js"></script>
+</head>
+<body>
+
+<py-config>
+packages = ["pyflame", "opentelemetry-distro"]
+terminal = false
+
+[[fetch]]
+from = "./load"
+files = ["parsing-document-in-cpu-intensive-application.py"]
+
+[[fetch]]
+from = "./load"
+files = ["ram-intensive-program.py"]
+
+[[fetch]]
+from = "./"
+files = ["calls.py"]
+
+[[fetch]]
+from = "./"
+files = ["otel_helpers.py"]
+
+</py-config>
+
+<style type="text/css">
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&display=swap');
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    /* font-size: 3.5em; */
+}
+
+h1, h2, h3, h4 {
+    font-weight: 400;
+    text-align: center;
+}
+
+.py-terminal {
+    min-height: 10em;
+    background-color: wheat;
+    color: black;
+    padding: 0.5rem;
+    overflow: auto;
+}
+
+.pres-scene {
+    display: none;
+    font-size: 1.5em;
+    padding: 1em;
+}
+
+.pres-speech {
+    display: none;
+}
+
+.pres-scene--choosen {
+    display: block;
+}
+
+.topic {
+    text-align: center;
+    vertical-align: center;
+}
+
+.first {
+    font-weight: 300;
+    text-align: center;
+    vertical-align: center;
+    letter-spacing: 0.1em;
+}
+
+.my-py-terminal {
+    min-height: 10em;
+    background-color: white;
+    color: black;
+    padding: 0.5rem;
+    overflow: auto;
+}
+
+.annotation2 {
+    font-size: 8pt;
+    text-align: right;
+}
+
+.left {
+    text-align: left;
+}
+
+.central {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.central-image {
+    width: 32em;
+}
+</style>
+
+<script>
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+
+    function clearStagePyTerminal(stageElem) {
+        console.log('Clean py-terminal', stageElem)
+        const pyTerminalElems = stageElem.getElementsByTagName("py-terminal")
+        if (!pyTerminalElems.length) {
+            return;
+        }
+        console.log('pyTerminalElems', pyTerminalElems)
+        const preTerminalElems = pyTerminalElems[0].getElementsByTagName("pre")
+        if (!preTerminalElems.length) {
+            return;
+        }
+        console.log('preTerminalElems', preTerminalElems)
+        preTerminalElems[0].innerHTML = ''
+    }
+
+    function loadContent(file, id) {
+        console.log('Loading', file, id)
+        const doc = document.getElementById(id)
+        if (!doc) {
+            console.error('No element with id', id)
+            return
+        }
+        const url = file
+        fetch(url)
+        .then(r => r.text())
+        .then(t => {
+            console.log('Try to update element', doc, file, id)
+            doc.innerHTML = t
+        })
+    }
+
+    function showScene(modifier) {
+        const currSceneElems = document.getElementsByClassName("pres-scene--choosen")
+        console.log('Curr Scene', currSceneElems)
+        const currSceneElem = currSceneElems[0]
+        let showSceneElem = null
+        if (modifier == 1) {
+            showSceneElem = currSceneElem.nextSibling.nextSibling
+        } else if (modifier == -1) {
+            showSceneElem = currSceneElem.previousSibling.previousSibling
+        } else {
+            throw new Error('Only supported +1/-1 modifier!')
+        }
+
+        console.log('showSceneElem', showSceneElem)
+        if (!showSceneElem) {
+            return
+        }
+
+        if (!showSceneElem.classList.contains("pres-scene")) {
+            return
+        }
+
+        hljs.highlightAll();
+
+        if (currSceneElem && currSceneElem != showSceneElem) {
+            if (modifier > 0) {
+                // Clear terminal when go forward, not backward
+                clearStagePyTerminal(showSceneElem)
+            }
+            currSceneElem.classList.remove("pres-scene--choosen")
+        }
+        showSceneElem.classList.add("pres-scene--choosen")
+    }
+
+    function tranformCurrentSceneRepl() {
+        const currSceneElems = document.getElementsByClassName("pres-scene--choosen")
+        console.log('Curr Scene', currSceneElems)
+        if (!currSceneElems.length) {
+            return
+        }
+
+        const terminals = currSceneElems[0].getElementsByTagName("py-terminal")
+        console.log('Terminals', terminals)
+        if (!terminals.length) {
+            return
+        }
+
+        let original = terminals[0]
+        let replacement = document.createElement('code')
+
+        replacement.innerHTML = original.innerHTML;
+        original.parentNode.replaceChild(replacement, original);
+
+        let docs = document.getElementsByClassName('py-terminal')
+        console.log('docs', docs)
+        if (!docs.length) {
+            return
+        }
+        docs[0].classList.remove('py-terminal')
+        docs[0].classList.add('my-py-terminal')
+    }
+
+    window.addEventListener('load', (event) => {
+        console.log('Show stage', 'xxx')
+
+        hljs.configure({
+            ignoreUnescapedHTML: true,
+        })
+
+        loadContent('load/memory_profiler.py', 'memory_profiler_py')
+        loadContent('out/memory_profiler.txt', 'memory_profiler_bash_output')
+
+        loadContent('load/asyncio_yappi.py', 'asyncio_yappi_py')
+        loadContent('out/asyncio_yappi.txt', 'asyncio_yappi_py_output')
+
+        loadContent('load/cpu-intensive-program.py', 'cpu_intensive_program_py')
+    })
+
+    document.addEventListener('keyup', (event) => {
+        console.log('keyup', event)
+        if (event.code == 'KeyA') {
+            showScene(-1)
+        } else if (event.code == 'KeyD'/* || event.code == 'Space'*/) {
+            showScene(+1)
+        } else if (event.code == 'KeyP' && event.ctrlKey) {
+            tranformCurrentSceneRepl()
+        } else if (event.code == 'KeyT' && event.ctrlKey) {
+            const currSceneElems = document.getElementsByClassName("pres-scene--choosen")
+            clearStagePyTerminal(currSceneElem)
+        }
+    });
+</script>
+
+<div id="contents" style="display: none;">
+Python web performance 101: uncovering the root causes
+
+Web engineers meet issues with performance with fast-growing or even maintaining existing products. It’s always unexpected and we have limited time for decisions. With our hero, we meet real-faced RAM, CPU and IO problems and learn troubleshooting approaches to monolithic and distributed systems.
+
+We try different existing tools from Python and the cloud ecosystem including, but not limited to: cProfile, yappi, memory-profiler and tracing.
+
+This talk will be more focused on backend parts and designed for intermediate-level web engineers, but all skill levels are welcome.
+
+---
+22 minutes.
+
+Structure
+Introduction (2 min.)
+CPU (5 min)
+- time and timeit
+- cProfile
+- snakeviz things
+- yappi
+RAM (5 min)
+- memory_profiler
+IO (3 min)
+- heavy loaded, processing big files
+Tracing (4 min)
+Conclusion (3 min)
+
+</div>
+
+<div class="pres-scene pres-scene--choosen">
+    <h2 class="first">Python Web Performance 101: Uncovering the root causes</h2>
+
+    <h3 class="first">First almost white screen</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="first">Python Web Performance 101: Uncovering the root causes</h2>
+
+    <h3 class="first">Second almost white screen</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="first">Python Web Performance 101: Uncovering the root causes</h2>
+
+    <h4 class="left">By Alex Ptakhin</h4>
+    <h4 class="left">Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin</h4>
+
+    <h4 class="left" style="margin-bottom: 0.5em;">Github</h4>
+    <img src="./img/qrcode-github-aptakhin.png" style="width: 15em" />
+</div>
+
+
+<div class="pres-scene">
+    <h2 class="topic">Agenda</h2>
+    <ul>
+        <li>CPU tools</li>
+        <li>RAM tools</li>
+        <li>Briefly IO</li>
+        <li>Tracing</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Agenda</h2>
+    <ul>
+        <li>CPU tools</li>
+        <li>RAM tools</li>
+        <li>Briefly IO</li>
+        <li>Tracing</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2>Who at least once used timeit, time.perf_counter(), CPU or memory usage profilers?</h2>
+
+    <div class="pres-speech">
+        Who at least once used timeit, time.perf_counter(), CPU or memory usage profilers?
+    </div>
+</div>
+
+<div class="pres-scene">
+    <div class="central central-image">
+        <img src="img/coffee-869203_1920.jpg" class="central central-image">
+        <span class="annotation2">
+            Image by <a href="https://pixabay.com/users/foundry-923783/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=869203">Foundry Co</a> from <a href="https://pixabay.com//?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=869203">Pixabay</a>
+        </span>
+    </div>
+
+    <div class="pres-speech">
+        David
+    </div>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">htop</h2>
+
+    <img src="img/cpu-issues.png" class="central central-image" />
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Temporary solution</h3>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Temporary solution</h3>
+
+    <h3 class="topic">Scale-up: more CPU, more RAM</h3>
+
+    <div class="pres-speech">
+        Now David has time to debug
+    </div>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">CPU</h2>
+</div>
+
+<div class="pres-scene">
+    <!-- more interesting cpu_intensive_call with details -->
+    <h2 class="topic">time.perf_counter</h2>
+
+    <py-repl>
+        import time
+        from calls import cpu_intensive_call
+
+        start = time.perf_counter()
+
+        cpu_intensive_call(num_iterations=5000000)
+
+        end = time.perf_counter()
+        print('Elapsed seconds: {:.1f}'.format(end - start))
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">time.perf_counter</h2>
+    <ul>
+        <li>Out of box</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">time.perf_counter</h2>
+    <ul>
+        <li>Out of box</li>
+        <li>Need to edit code, no internal details</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">cProfile</h2>
+
+    <py-repl>
+        import cProfile
+        import re
+
+        from calls import cpu_intensive_call
+
+        cProfile.run('cpu_intensive_call(num_iterations=5000000)')
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">cProfile</h2>
+
+    <pre><code class="language-bash">$ python -m cProfile \
+    -o out/cpu-intensive-program.prof \
+    load/cpu-intensive-program.py
+$ snakeviz out/cpu-intensive-program.prof
+    </code></pre>
+
+    <img src="img/snakeviz.png" class="central central-image" />
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">cProfile</h2>
+    <ul>
+        <li>Out of box</li>
+        <li>Internal details timings</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">cProfile</h2>
+    <ul>
+        <li>Out of box</li>
+        <li>Internal details timings</li>
+        <li>Have visualize extensions</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">CPU Profilers</h2>
+    <ul>
+        <li>Perfect! Is this all?</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">CPU Profilers</h2>
+    <ul>
+        <li>Perfect! Is this all?</li>
+        <li>Not exactly. Measuring something can change a behaviour of the system</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">CPU Profilers</h2>
+    <ul>
+        <li>Perfect! Is this all?</li>
+        <li>Not exactly. Measuring something can change a behaviour of the system</li>
+        <li>Let's take a look to sampling profilers</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">py-spy</h2>
+
+    <pre><code class="language-python" id="cpu_intensive_program_py"></code></pre>
+
+    <pre><code class="language-bash">$ py-spy record -o out/py-spy.svg -- python load/cpu-intensive-program.py
+    </code></pre>
+
+    <!-- py-spy record -o out/py-spy.svg -- python load/cpu_intensive_program_py -->
+
+    <img src="out/py-spy.svg" class="central" style="width: 40em">
+
+    <div class="pres-speech">
+        Sampling profilers - gets traces after
+    </div>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">py-spy</h2>
+    <ul>
+        <li>Sampling profiler</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">py-spy</h2>
+    <ul>
+        <li>Sampling profiler</li>
+        <li>Requires development environment</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Bonus: yappi for asyncio</h2>
+
+    <pre><code class="language-python" id="asyncio_yappi_py"></code></pre>
+
+    <pre><code class="language-bash">$ python load/asyncio_yappi.py > out/asyncio_yappi.txt
+$ snakeviz out/asyncio_yappi.prof
+    </code></pre>
+
+    <pre><code class="language-bash" id="asyncio_yappi_py_output"></code></pre>
+
+    <div class="pres-speech">
+        Also very interesting profiler. Supports asynchronous execution
+    </div>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Bonus: yappi for asyncio</h2>
+    <ul>
+        <li>Supports asynchronous execution</li>
+        <li>Different clock modes</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Problem found</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">After a few days</h2>
+
+    <div class="pres-speech">
+        After a few days failing processes and 500.
+    </div>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">htop</h2>
+
+    <img src="img/ram-issues.png" class="central central-image" />
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">RAM</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">sys.getsizeof</h2>
+
+    <py-repl>
+        import sys
+
+        print(f'Empty dict size: {sys.getsizeof({})}')
+        print(f'Empty list size: {sys.getsizeof([])}')
+        print(f'Empty set size: {sys.getsizeof(set())}')
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">tracemalloc</h2>
+
+    <py-repl>
+        import tracemalloc
+        from ram_intensive_program import ram_intensive_call
+
+        tracemalloc.start()
+
+        snapshot1 = tracemalloc.take_snapshot()
+        ram_intensive_call()
+        snapshot2 = tracemalloc.take_snapshot()
+
+        top_stats = snapshot2.compare_to(snapshot1, 'lineno')
+        print("[ Top 10 differences ]")
+        for stat in top_stats[:10]:
+            print(stat)
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">memory-profiler</h2>
+
+    <pre><code class="language-python" id="memory_profiler_py"></code></pre>
+
+    <pre><code class="language-bash">$ poetry add memory_profiler
+$ python -m memory_profiler load/memory_profiler.py
+    </code></pre>
+    <!-- python -m memory_profiler load/memory_profiler.py > out/memory_profiler.txt -->
+
+    <pre><code class="language-bash" id="memory_profiler_bash_output"></code></pre>
+
+    <!-- <div class="pres-scene">
+    <h2 class="topic">memory-profiler</h2>
+
+    <pre><code class="language-bash">$ poetry add matplotlib
+$ mprof run -o out/mprofile.dat load/memory_profiler.py
+$ mprof plot -o out/mprofile.png out/mprofile.dat</code></pre>
+
+</div> -->
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">memory-profiler</h2>
+    <ul>
+        <li>Code changes for the detailed overview</li>
+        <li>Uses deprecated matplotlib.pylab</li>
+        <li>No longer maintained</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">memray</h2>
+
+    <pre><code class="language-bash">$ poetry add memray
+$ memray run -o out/memray.bin load/ram-intensive-program.py
+$ memray flamegraph out/memray.bin
+$ # ... out/memray-flamegraph-memray.html</code></pre>
+
+    <img src="img/memray.png" class="central central-image" />
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">IO</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">General advices</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">General advices</h2>
+    <ul>
+        <li>Scale up</li>
+        <li>Scale out</li>
+        <li>Network</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Tracing</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Open Telemetry</h2>
+
+    <py-repl>
+        from calls import cpu_intensive_call
+        from opentelemetry import trace
+
+        tracer = trace.get_tracer(__name__)
+
+        if __name__ == '__main__':
+            with tracer.start_as_current_span("cpu_intensive_call") as child:
+                cpu_intensive_call(num_iterations=5000000)
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Open Telemetry</h2>
+
+    <py-repl>
+        from otel_helpers import catchtime, init_otel
+        from opentelemetry import trace, metrics
+
+        from calls import cpu_intensive_call
+
+        init_otel()
+
+        tracer = trace.get_tracer(__name__)
+        meter = metrics.get_meter(__name__)
+        execution_time_hgram = meter.create_histogram('execution_time')
+
+        with tracer.start_as_current_span("cpu_intensive_application") as parent:
+            for x in range(3):
+                with tracer.start_as_current_span("cpu_intensive_call") as child, catchtime() as t:
+                    cpu_intensive_call(num_iterations=5000000)
+                execution_time_hgram.record(t())
+    </py-repl>
+
+    <py-terminal></py-terminal>
+</div>
+
+
+<div class="pres-scene">
+    <h2 class="topic">Open Telemetry</h2>
+
+    <img src="./img/grafana.png" class="central central-image" />
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">3 things to remember</h2>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">3 things to remember</h2>
+    <ul>
+        <li>Worth to have a chance win some time with resources</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">3 things to remember</h2>
+    <ul>
+        <li>Worth to have a chance win some time with resources</li>
+        <li>Monitor application errors</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic"><s>3</s> 4 things to remember</h2>
+    <ul>
+        <li>Worth to have a chance win some time with resources</li>
+        <li>Monitor application errors</li>
+        <li>Measuring something can change a behaviour of the system</li>
+        <li>Tuning is good and remember pure Python is not about the performance</li>
+    </ul>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Thank you! Questions?</h2>
+
+    <h3 class="topic left" style="padding-bottom: 0pt">Gratitudes</h3>
+    <ul>
+        <li><a href="https://pyscript.net" target="_blank">PyScript</a> for empowering the presentation <img src="./img/pyscript-sticker-black.svg" width="50" class="left" style="position: relative; top: 3pt;" /></li>
+        <li><a href="https://highlightjs.org" target="_blank">highlight.js</a> for syntax highlighting</li>
+        <li><a href="https:/playwright.com" target="_blank">playwright</a> for help with PDF slides</li>
+        <li><a href="https://prestatech.com" target="_blank">Prestatech GmbH</a> for support this talk (and we are hiring)</li>
+    </ul>
+
+    <p>By Alex Ptakhin, Senior Software Engineer at <a href="https://prestatech.com/" _target="blank">Prestatech GmbH</a>, Berlin. <a href="mailto:me@aptakhin.name" target="_blank">me@aptakhin.name</a> / <a href="https://github.com/aptakhin" target="_blank">github.com/aptakhin</a> / <a href="https://twitter.com/aptakhin" target="_blank">twitter.com/aptakhin</a> / <a href="https://hachyderm.io/@AlexPtakhin" target="_blank">hachyderm.io/@AlexPtakhin</a></li> / <a href="https://linkedin.com/in/aptakhin" target="_blank">linkedin.com/in/aptakhin</a>
+    </p>
+
+    <p>Presentation sources: <a href="https://github.com/aptakhin/talks/blob/make-python-web-performance-101/2023-Python-Web-Performance-101/index.html" target="_blank">github.com/aptakhin/talks/2023-Python-Web-Performance-101</a></p>
+    <img src="./img/qrcode-github-talk.png" width="200" height="200" class="left" />
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Secret reference slide</h2>
+    <ul class="left">
+        <li>Yappi clock types:
+            <ul>
+                <li><a href="https://en.wikipedia.org/wiki/CPU_time" target="_blank">CPU Time</a></li>
+                <li><a href="https://en.wikipedia.org/wiki/Elapsed_real_time" target="_blank">WALL Time</a></li>
+            </ul>
+        </li>
+        <li>https://docs.python.org/3/library/tracemalloc.html</li>
+        <li>https://bloomberg.github.io/memray/</li>
+        <li>https://opentelemetry.io/ecosystem/vendors/</li>
+        <li>init_otel implementantion <a href="./otel_helpers.py" target="_blank">python source</a></li>
+    </ul>
+
+    <islast style="display: block;">&nbsp;</islast>
+</div>
+
+</body>
+</html>
