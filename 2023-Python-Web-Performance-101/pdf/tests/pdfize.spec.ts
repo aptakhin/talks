@@ -15,7 +15,7 @@ test('screenshot', async ({ page }) => {
     await page.locator(".pres-scene--choosen").press('KeyD')
     await new Promise(f => setTimeout(f, 200))
 
-    await page.pdf({ path: 'out/page' + pageFilenumber + '.pdf' })
+    await page.pdf({ path: 'out/page' + pageFilenumber + '.pdf', width: 1600, height: 1000 })
     pageNumber += 1
 
     const visiblePyTerminals = await page.$$("py-terminal:visible");
@@ -24,15 +24,15 @@ test('screenshot', async ({ page }) => {
     if (visiblePyTerminals.length) {
       const visiblePyTerminal = await page.locator("py-terminal:visible")
 
-      await page.pdf({ path: 'out/page' + pageFilenumber + '.pdf' })
-      pageNumber += 1
+      // await page.pdf({ path: 'out/page' + pageFilenumber + '.pdf' })
+      // pageNumber += 1
 
       await visiblePyTerminal.press('Shift+Enter')
       await new Promise(f => setTimeout(f, 2000))
       await page.locator(".pres-scene--choosen").press('Control+P')
       await new Promise(f => setTimeout(f, 100))
 
-      await page.pdf({ path: 'out/page' + pageFilenumber + '.pdf' })
+      await page.pdf({ path: 'out/page' + pageFilenumber + '.pdf', width: 1600, height: 1000 })
       pageNumber += 1
     }
 
