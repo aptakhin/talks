@@ -456,7 +456,7 @@ $ snakeviz out/cpu-intensive-program.prof</code></pre>
     <h2 class="topic">CPU Profilers</h2>
     <ul>
         <li>Perfect! Is this all?</li>
-        <li>Not exactly. Measuring something can change a behaviour of the system</li>
+        <li>Not exactly. Measuring something can change the behaviour of the system</li>
     </ul>
 </div>
 
@@ -464,7 +464,7 @@ $ snakeviz out/cpu-intensive-program.prof</code></pre>
     <h2 class="topic">CPU Profilers</h2>
     <ul>
         <li>Perfect! Is this all?</li>
-        <li>Not exactly. Measuring something can change a behaviour of the system</li>
+        <li>Not exactly. Measuring something can change the behaviour of the system</li>
         <li>Let's take a look to sampling profilers</li>
     </ul>
 </div>
@@ -636,7 +636,7 @@ $ mprof plot -o out/mprofile.png out/mprofile.dat</code></pre>
 <div class="pres-scene">
     <h2 class="topic">memory-profiler</h2>
     <ul>
-        <li>Code changes for the detailed overview</li>
+        <li>Requires code changes for the detailed overview</li>
         <li>Uses deprecated matplotlib.pylab</li>
         <li>No longer maintained</li>
     </ul>
@@ -694,8 +694,6 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
             with tracer.start_as_current_span("cpu_intensive_call") as child:
                 cpu_intensive_call(num_iterations=5000000)
     </py-repl>
-
-    <py-terminal></py-terminal>
 </div>
 
 <div class="pres-scene">
@@ -727,7 +725,7 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
 <div class="pres-scene">
     <h2 class="topic">Open Telemetry</h2>
 
-    Multiply vendors, e.g. Grafana.
+    <p style="text-align: center">Multiply vendors, e.g. Grafana.</p>
 
     <img src="./img/grafana.png" class="central central-image" />
 </div>
@@ -756,8 +754,8 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
     <ul>
         <li>Worth to have a chance win some time with resources</li>
         <li>Monitor application errors</li>
-        <li>Measuring something can change a behaviour of the system</li>
-        <li>Tuning is good and remember pure Python is not about the performance</li>
+        <li>Measuring something can change the behaviour of the system</li>
+        <li>Tuning is good, and remember, pure Python is not about the performance</li>
     </ul>
 </div>
 
