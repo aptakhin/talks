@@ -1,7 +1,10 @@
 
 ```bash
 ./shell/server.sh
+
+# for pdf
 ./shell/pdf.sh
+# collect pdf files and create pdf and name it "2023-Python-Web-Performance-101" and move to root of repo
 ```
 
 ```bash

@@ -33,7 +33,12 @@ files = ["parsing-document-in-cpu-intensive-application.py"]
 
 [[fetch]]
 from = "./load"
-files = ["ram-intensive-program.py"]
+files = ["ram_intensive_program.py"]
+
+[[fetch]]
+from = "./load"
+files = ["ram_intensive_dummy_program.py"]
+
 
 [[fetch]]
 from = "./"
@@ -305,8 +310,6 @@ Conclusion (3 min)
     <ul>
         <li>CPU tools</li>
         <li>RAM tools</li>
-        <li>Briefly IO</li>
-        <li>Tracing</li>
     </ul>
 </div>
 
@@ -420,8 +423,7 @@ Conclusion (3 min)
     <pre><code class="language-bash">$ python -m cProfile \
     -o out/cpu-intensive-program.prof \
     load/cpu-intensive-program.py
-$ snakeviz out/cpu-intensive-program.prof
-    </code></pre>
+$ snakeviz out/cpu-intensive-program.prof</code></pre>
 
     <img src="img/snakeviz.png" class="central central-image" />
 </div>
@@ -472,8 +474,7 @@ $ snakeviz out/cpu-intensive-program.prof
 
     <pre><code class="language-python" id="cpu_intensive_program_py"></code></pre>
 
-    <pre><code class="language-bash">$ py-spy record -o out/py-spy.svg -- python load/cpu-intensive-program.py
-    </code></pre>
+    <pre><code class="language-bash">$ py-spy record -o out/py-spy.svg -- python load/cpu-intensive-program.py</code></pre>
 
     <!-- py-spy record -o out/py-spy.svg -- python load/cpu_intensive_program_py -->
 
@@ -504,15 +505,22 @@ $ snakeviz out/cpu-intensive-program.prof
 
     <pre><code class="language-python" id="asyncio_yappi_py"></code></pre>
 
-    <pre><code class="language-bash">$ python load/asyncio_yappi.py > out/asyncio_yappi.txt
-$ snakeviz out/asyncio_yappi.prof
-    </code></pre>
+    <pre><code class="language-bash">$ python load/asyncio_yappi.py</code></pre>
 
     <pre><code class="language-bash" id="asyncio_yappi_py_output"></code></pre>
 
     <div class="pres-speech">
         Also very interesting profiler. Supports asynchronous execution
     </div>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Bonus: yappi for asyncio</h2>
+
+    <pre><code class="language-bash">$ python load/asyncio_yappi.py > out/asyncio_yappi.txt
+$ snakeviz out/asyncio_yappi.prof</code></pre>
+
+    <img src="out/yappi.png" class="central central-image" />
 </div>
 
 <div class="pres-scene">
@@ -546,6 +554,16 @@ $ snakeviz out/asyncio_yappi.prof
 </div>
 
 <div class="pres-scene">
+    <h2 class="topic">Temporary solution</h3>
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">Temporary solution</h3>
+
+    <h3 class="topic">Restart every N requests</h3>
+</div>
+
+<div class="pres-scene">
     <h2 class="topic">sys.getsizeof</h2>
 
     <py-repl>
@@ -564,12 +582,17 @@ $ snakeviz out/asyncio_yappi.prof
 
     <py-repl>
         import tracemalloc
-        from ram_intensive_program import ram_intensive_call
+
+        def ram_intensive_dummy_call() -> None:
+            a = [1] * (10 ** 6)
+            b = [2] * (2 * 10 ** 7)
+            del b
+            return a
 
         tracemalloc.start()
 
         snapshot1 = tracemalloc.take_snapshot()
-        ram_intensive_call()
+        ram_intensive_dummy_call()
         snapshot2 = tracemalloc.take_snapshot()
 
         top_stats = snapshot2.compare_to(snapshot1, 'lineno')
@@ -587,8 +610,7 @@ $ snakeviz out/asyncio_yappi.prof
     <pre><code class="language-python" id="memory_profiler_py"></code></pre>
 
     <pre><code class="language-bash">$ poetry add memory_profiler
-$ python -m memory_profiler load/memory_profiler.py
-    </code></pre>
+$ python -m memory_profiler load/memory_profiler.py</code></pre>
     <!-- python -m memory_profiler load/memory_profiler.py > out/memory_profiler.txt -->
 
     <pre><code class="language-bash" id="memory_profiler_bash_output"></code></pre>
@@ -601,6 +623,14 @@ $ mprof run -o out/mprofile.dat load/memory_profiler.py
 $ mprof plot -o out/mprofile.png out/mprofile.dat</code></pre>
 
 </div> -->
+</div>
+
+
+<div class="pres-scene">
+    <h2 class="topic">memory-profiler</h2>
+    <ul>
+        <li>Requires code changes for the detailed overview</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
@@ -621,6 +651,13 @@ $ memray flamegraph out/memray.bin
 $ # ... out/memray-flamegraph-memray.html</code></pre>
 
     <img src="out/memray.png" class="central central-image" />
+</div>
+
+<div class="pres-scene">
+    <h2 class="topic">memray</h2>
+    <ul>
+        <li>Looks promising</li>
+    </ul>
 </div>
 
 <div class="pres-scene">
@@ -690,6 +727,8 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
 <div class="pres-scene">
     <h2 class="topic">Open Telemetry</h2>
 
+    Multiply vendors, e.g. Grafana.
+
     <img src="./img/grafana.png" class="central central-image" />
 </div>
 
@@ -743,15 +782,16 @@ $ # ... out/memray-flamegraph-memray.html</code></pre>
 <div class="pres-scene">
     <h2 class="topic">Secret reference slide</h2>
     <ul class="left">
-        <li>Yappi clock types:
+        <li><a href="https://docs.python.org/3/library/profile.html" target="_blank">https://docs.python.org/3/library/profile.html</a></li>
+        <li><a href="https://github.com/sumerc/yappi" target="_blank">Yappi</a> clock types:
             <ul>
                 <li><a href="https://en.wikipedia.org/wiki/CPU_time" target="_blank">CPU Time</a></li>
                 <li><a href="https://en.wikipedia.org/wiki/Elapsed_real_time" target="_blank">WALL Time</a></li>
             </ul>
         </li>
-        <li>https://docs.python.org/3/library/tracemalloc.html</li>
-        <li>https://bloomberg.github.io/memray/</li>
-        <li>https://opentelemetry.io/ecosystem/vendors/</li>
+        <li><a href="https://docs.python.org/3/library/tracemalloc.html" target="_blank">https://docs.python.org/3/library/tracemalloc.html</a></li>
+        <li><a href="https://bloomberg.github.io/memray/" target="_blank">https://bloomberg.github.io/memray/</a</li>
+        <li><a href="https://opentelemetry.io/ecosystem/vendors/" target="_blank">https://opentelemetry.io/ecosystem/vendors/</a></li>
         <li>init_otel implementantion <a href="./otel_helpers.py" target="_blank">python source</a></li>
     </ul>
 

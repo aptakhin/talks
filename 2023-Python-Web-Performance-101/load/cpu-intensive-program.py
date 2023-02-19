@@ -3,6 +3,5 @@ def cpu_intensive_call(*, num_iterations):
     for _ in range(num_iterations):
         x*x
 
-
 if __name__ == '__main__':
     cpu_intensive_call(num_iterations=5000000)
